@@ -3,254 +3,364 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Análise de Subregistro Civil - COGEX-MA</title>
-    
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="https://www.ma.gov.br/favicon.ico" type="image/x-icon">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    
-    <!-- CSS Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Plotly.js -->
-    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js" charset="utf-8"></script>
-    
-    <!-- D3.js (para algumas visualizações específicas) -->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    
+    <title>Dashboard - Inspeção Ordinária TJMA</title>
     <style>
         :root {
-            --primary: #1a237e;
-            --primary-light: #534bae;
-            --primary-dark: #000051;
-            --secondary: #d32f2f;
-            --secondary-light: #ff6659;
-            --secondary-dark: #9a0007;
-            --text-on-primary: #ffffff;
-            --text-on-secondary: #ffffff;
-            --background: #f5f5f5;
-            --card-bg: #ffffff;
-            --border: #e0e0e0;
-            --success: #388e3c;
-            --warning: #f57c00;
-            --danger: #d32f2f;
-            --info: #0288d1;
+            --primary: #003366;
+            --secondary: #336699;
+            --accent: #ffcc00;
+            --light: #f5f7fa;
+            --dark: #333;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--background);
-            color: #333;
+            background-color: var(--light);
+            color: var(--dark);
             line-height: 1.6;
-            overflow-x: hidden;
         }
 
-        /* Header styles */
-        .dashboard-header {
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
             background-color: var(--primary);
-            color: var(--text-on-primary);
-            padding: 1rem 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .dashboard-title {
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .dashboard-subtitle {
-            font-size: 0.875rem;
-            opacity: 0.8;
-        }
-
-        /* Card styles */
-        .card {
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-            height: 100%;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .card-header {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid var(--border);
-            padding: 0.75rem 1rem;
-            font-weight: 500;
-        }
-
-        /* Metric card styles */
-        .metric-card {
-            text-align: center;
-            padding: 1rem;
-        }
-
-        .metric-title {
-            font-size: 0.875rem;
-            color: #666;
-            margin-bottom: 0.5rem;
-        }
-
-        .metric-value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-
-        .metric-change {
-            font-size: 0.875rem;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .metric-change.positive {
-            color: var(--success);
-        }
-
-        .metric-change.negative {
-            color: var(--danger);
-        }
-
-        .metric-icon {
-            display: inline-block;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: rgba(26, 35, 126, 0.1);
-            color: var(--primary);
-            line-height: 50px;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        /* Chart container styles */
-        .chart-container {
-            min-height: 400px;
-            width: 100%;
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             position: relative;
+            overflow: hidden;
         }
 
-        /* Loading spinner */
-        .loading-container {
+        header::before {
+            content: '';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.8);
+            background: linear-gradient(45deg, rgba(0, 51, 102, 0.3) 0%, rgba(51, 102, 153, 0.3) 100%);
+            z-index: 1;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            max-width: 800px;
+            animation: fadeInUp 1s ease-out;
+            opacity: 0.9;
+        }
+
+        nav {
+            background-color: var(--secondary);
+            padding: 10px 0;
+            position: sticky;
+            top: 0;
             z-index: 100;
         }
 
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-radius: 50%;
-            border-top: 4px solid var(--primary);
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Tab navigation */
-        .nav-tabs .nav-link {
-            color: #495057;
-            padding: 0.75rem 1rem;
-            border: none;
-            border-bottom: 3px solid transparent;
-        }
-
-        .nav-tabs .nav-link.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-            background-color: transparent;
-        }
-
-        .nav-tabs .nav-link:hover:not(.active) {
-            border-bottom-color: #dee2e6;
-        }
-
-        /* Alert styles */
-        .alert-custom {
-            border-left: 4px solid;
-            padding: 1rem;
-            margin-bottom: 1rem;
+        .nav-container {
             display: flex;
-            align-items: flex-start;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
         }
 
-        .alert-icon {
-            margin-right: 1rem;
-            font-size: 1.5rem;
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s, transform 0.3s;
         }
 
-        .alert-danger {
-            border-left-color: var(--danger);
-            background-color: rgba(211, 47, 47, 0.05);
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
 
-        .alert-danger .alert-icon {
-            color: var(--danger);
+        .section {
+            margin: 40px 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s, transform 0.5s;
         }
 
-        .alert-info {
-            border-left-color: var(--info);
-            background-color: rgba(2, 136, 209, 0.05);
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        .alert-info .alert-icon {
-            color: var(--info);
+        .section-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        /* Table styles */
-        .custom-table th {
-            background-color: #f2f2f2;
-            position: sticky;
-            top: 0;
+        .section-content {
+            padding: 20px;
         }
 
-        .custom-table .badge {
-            font-weight: 500;
-            font-size: 0.75rem;
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
         }
 
-        /* Footer styles */
-        .dashboard-footer {
-            margin-top: 2rem;
-            padding: 1rem 0;
-            text-align: center;
-            font-size: 0.875rem;
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-top: 4px solid var(--secondary);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--secondary);
+        }
+
+        .card-description {
+            font-size: 0.9rem;
             color: #666;
-            border-top: 1px solid var(--border);
         }
 
-        /* Animation for tab content */
-        .fade-in {
-            animation: fadeIn 0.5s ease;
+        .card.alert {
+            border-top-color: var(--danger);
         }
 
-        @keyframes fadeIn {
+        .card.warning {
+            border-top-color: var(--warning);
+        }
+
+        .card.success {
+            border-top-color: var(--success);
+        }
+
+        .card.info {
+            border-top-color: var(--info);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f5f7fa;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .highlight {
+            background-color: rgba(255, 204, 0, 0.1);
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--secondary);
+            border-radius: 5px;
+            width: 0%;
+            transition: width 1s ease;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .badge-success {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(40, 167, 69, 0.2);
+        }
+
+        .badge-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #d39e00;
+            border: 1px solid rgba(255, 193, 7, 0.2);
+        }
+
+        .badge-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        .badge-info {
+            background-color: rgba(23, 162, 184, 0.1);
+            color: var(--info);
+            border: 1px solid rgba(23, 162, 184, 0.2);
+        }
+
+        .chart-container {
+            height: 300px;
+            margin: 20px 0;
+        }
+
+        footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .footer-link:hover {
+            opacity: 1;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-active {
+            background-color: var(--success);
+        }
+
+        .status-pending {
+            background-color: var(--warning);
+        }
+
+        .status-inactive {
+            background-color: var(--danger);
+        }
+
+        .toggle-btn {
+            background-color: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .toggle-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .collapse {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .collapse.show {
+            max-height: 2000px;
+        }
+
+        @keyframes fadeInDown {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(-30px);
             }
             to {
                 opacity: 1;
@@ -258,1784 +368,656 @@
             }
         }
 
-        /* Responsive adjustments */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 204, 0, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 204, 0, 0);
+            }
+        }
+
+        .alert-action-needed {
+            animation: pulse 2s infinite;
+        }
+
         @media (max-width: 768px) {
-            .dashboard-title {
-                font-size: 1.25rem;
+            h1 {
+                font-size: 2rem;
             }
-            
-            .dashboard-subtitle {
-                font-size: 0.75rem;
+            .subtitle {
+                font-size: 1rem;
             }
-            
-            .metric-value {
-                font-size: 1.5rem;
-            }
-            
-            .chart-container {
-                min-height: 300px;
+            .card-container {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="dashboard-header mb-4">
-        <div class="container d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="dashboard-title">Dashboard de Análise de Subregistro Civil</h1>
-                <p class="dashboard-subtitle">Corregedoria do Foro Extrajudicial do Tribunal de Justiça do Maranhão (COGEX-MA)</p>
-            </div>
-            <div class="d-flex align-items-center">
-                <div class="text-white me-3">
-                    <i class="fas fa-calendar-alt me-1"></i>
-                    <span>Maio de 2025</span>
-                </div>
-                <button class="btn btn-light btn-sm" id="btnExportData">
-                    <i class="fas fa-download me-1"></i>
-                    Exportar
-                </button>
-            </div>
+    <header>
+        <div class="header-content">
+            <h1>Relatório de Inspeção Ordinária TJMA</h1>
+            <p class="subtitle">Corregedoria do Foro Extrajudicial e Serventias Extrajudiciais do Estado do Maranhão</p>
         </div>
     </header>
 
-    <!-- Main Content -->
+    <nav>
+        <div class="container nav-container">
+            <a href="#cogex" class="nav-link">COGEX</a>
+            <a href="#serventias" class="nav-link">Serventias</a>
+            <a href="#estatisticas" class="nav-link">Estatísticas</a>
+            <a href="#irregularidades" class="nav-link">Irregularidades</a>
+            <a href="#recomendacoes" class="nav-link">Recomendações</a>
+        </div>
+    </nav>
+
     <main class="container">
-        <!-- Filtros e Controles -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-filter me-2"></i>Filtros
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label for="selectAno" class="form-label">Ano</label>
-                            <select class="form-select" id="selectAno">
-                                <option value="carregando">Carregando...</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="selectMunicipio" class="form-label">Município</label>
-                            <select class="form-select" id="selectMunicipio">
-                                <option value="todos">Todos os Municípios</option>
-                                <option value="carregando">Carregando...</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Regiões (para comparação)</label>
-                            <div id="checkboxesRegioes">
-                                <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                    <span class="visually-hidden">Carregando...</span>
-                                </div>
-                                <span class="ms-2">Carregando regiões...</span>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="checkUnidadesInterligadas" checked>
-                                <label class="form-check-label" for="checkUnidadesInterligadas">
-                                    Mostrar informações sobre unidades interligadas
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="checkInfoCogex" checked>
-                                <label class="form-check-label" for="checkInfoCogex">
-                                    Mostrar informações sobre COGEX
-                                </label>
-                            </div>
-                        </div>
-                        <button class="btn btn-secondary w-100" id="btnResetFilters">
-                            <i class="fas fa-sync-alt me-1"></i>
-                            Resetar Filtros
-                        </button>
-                    </div>
-                </div>
+        <section id="cogex" class="section">
+            <div class="section-header">
+                <h2>Corregedoria do Foro Extrajudicial (COGEX)</h2>
+                <button class="toggle-btn" data-target="cogex-content">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
             </div>
-            
-            <div class="col-md-9">
-                <!-- KPI Cards -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="metric-card">
-                                <div class="metric-icon">
-                                    <i class="fas fa-chart-line"></i>
-                                </div>
-                                <h3 class="metric-title">Taxa de Subregistro (MA)</h3>
-                                <div class="metric-value" id="metricTaxaSubregistro">--</div>
-                                <div class="metric-change negative" id="metricTaxaSubregistroChange">
-                                    <i class="fas fa-arrow-up me-1"></i>
-                                    <span>--</span>
-                                </div>
-                            </div>
-                        </div>
+            <div id="cogex-content" class="section-content collapse show">
+                <div class="card-container">
+                    <div class="card info">
+                        <div class="card-title">Data de Criação</div>
+                        <div class="card-value">25/06/2024</div>
+                        <div class="card-description">Lei Complementar n.º 271</div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="metric-card">
-                                <div class="metric-icon" style="background-color: rgba(56, 142, 60, 0.1); color: var(--success);">
-                                    <i class="fas fa-baby"></i>
-                                </div>
-                                <h3 class="metric-title">Nascidos Vivos (MA)</h3>
-                                <div class="metric-value" id="metricNascidosVivos">--</div>
-                                <div class="metric-change positive" id="metricNascidosVivosChange">
-                                    <i class="fas fa-arrow-up me-1"></i>
-                                    <span>--</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="card">
+                        <div class="card-title">Corregedor</div>
+                        <div class="card-value">Des. José Jorge Figueiredo dos Santos</div>
+                        <div class="card-description">Mandato: 26/04/2024 a 30/04/2026</div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="metric-card">
-                                <div class="metric-icon" style="background-color: rgba(2, 136, 209, 0.1); color: var(--info);">
-                                    <i class="fas fa-file-signature"></i>
-                                </div>
-                                <h3 class="metric-title">Registros Civis (MA)</h3>
-                                <div class="metric-value" id="metricRegistrosCivis">--</div>
-                                <div class="metric-change positive" id="metricRegistrosCivisChange">
-                                    <i class="fas fa-arrow-up me-1"></i>
-                                    <span>--</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="card success">
+                        <div class="card-title">Equipe</div>
+                        <div class="card-value">47</div>
+                        <div class="card-description">Servidores e colaboradores</div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="metric-card">
-                                <div class="metric-icon" style="background-color: rgba(245, 124, 0, 0.1); color: var(--warning);">
-                                    <i class="fas fa-hospital"></i>
-                                </div>
-                                <h3 class="metric-title">Unidades Interligadas</h3>
-                                <div class="metric-value">125</div>
-                                <div class="metric-change positive">
-                                    <i class="fas fa-arrow-up me-1"></i>
-                                    <span>+5 vs 2022</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="card warning">
+                        <div class="card-title">Serventias Fiscalizadas</div>
+                        <div class="card-value">285</div>
+                        <div class="card-description">Serventias extrajudiciais no estado</div>
                     </div>
                 </div>
-                
-                <!-- Tab Navigation -->
-                <ul class="nav nav-tabs mb-4" id="dashboardTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="panorama-tab" data-bs-toggle="tab" data-bs-target="#panorama" type="button" role="tab" aria-controls="panorama" aria-selected="true">
-                            <i class="fas fa-globe-americas me-1"></i>
-                            Panorama Geral
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="municipio-tab" data-bs-toggle="tab" data-bs-target="#municipio" type="button" role="tab" aria-controls="municipio" aria-selected="false">
-                            <i class="fas fa-map-marker-alt me-1"></i>
-                            Análise por Município
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="historico-tab" data-bs-toggle="tab" data-bs-target="#historico" type="button" role="tab" aria-controls="historico" aria-selected="false">
-                            <i class="fas fa-chart-line me-1"></i>
-                            Séries Históricas
-                        </button>
-                    </li>
+
+                <h3>Estrutura Organizacional</h3>
+                <p>A COGEX foi viabilizada pelo Projeto de Lei Complementar 002/2024, aprovado pelo Tribunal de Justiça do Maranhão (TJMA) e posteriormente sancionado, por meio da Lei Complementar n.º 271, de 25 de junho de 2024. A estrutura conta com:</p>
+                <ul>
+                    <li>Núcleo de Aprimoramento Extrajudicial (NAE): Focado na supervisão e aprimoramento técnico e operacional dos serviços.</li>
+                    <li>Núcleo de Registro Civil e Acesso à Documentação Básica (NRC): Responsável por orientar e facilitar o acesso da população à documentação essencial.</li>
                 </ul>
                 
-                <!-- Tab Content -->
-                <div class="tab-content">
-                    <!-- Tab 1: Panorama Geral -->
-                    <div class="tab-pane fade show active" id="panorama" role="tabpanel" aria-labelledby="panorama-tab">
-                        <!-- Gráfico de Taxa por Região -->
-                        <div class="card mb-4">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <span><i class="fas fa-chart-bar me-2"></i>Comparativo de Taxa de Subregistro por Região</span>
-                                <button class="btn btn-sm btn-outline-secondary download-chart" data-chart="chartTaxaRegiao">
-                                    <i class="fas fa-download"></i>
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <div class="chart-container" id="chartTaxaRegiao">
-                                    <div class="loading-container">
-                                        <div class="spinner"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Gráfico de Taxa por Município -->
-                        <div class="card mb-4">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <span><i class="fas fa-map me-2"></i>Distribuição do Subregistro nos Municípios do Maranhão</span>
-                                <button class="btn btn-sm btn-outline-secondary download-chart" data-chart="chartTaxaMunicipio">
-                                    <i class="fas fa-download"></i>
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <div class="chart-container" id="chartTaxaMunicipio">
-                                    <div class="loading-container">
-                                        <div class="spinner"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Alerta sobre risco de subregistro -->
-                        <div class="alert-custom alert-danger">
-                            <div class="alert-icon">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </div>
-                            <div>
-                                <h5>Alerta de Risco de Subregistro</h5>
-                                <p class="mb-0">A partir de janeiro/2025, o ON-RCPN adotou entendimento pelo qual apenas delegatários, interinos ou prepostos de serventias extrajudiciais podem emitir certidões, afetando o acesso nas maternidades e criando risco de aumento do subregistro.</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Tab 2: Análise por Município -->
-                    <div class="tab-pane fade" id="municipio" role="tabpanel" aria-labelledby="municipio-tab">
-                        <!-- Conteúdo condicional baseado na seleção de município -->
-                        <div id="municipioDetalhado" style="display: none;">
-                            <!-- KPIs do município -->
-                            <div class="row mb-4">
-                                <div class="col-md-4">
-                                    <div class="card">
-                                        <div class="metric-card">
-                                            <h3 class="metric-title">Taxa de Subregistro</h3>
-                                            <div class="metric-value" id="metricMunicipioTaxa">--</div>
-                                            <div class="metric-change" id="metricMunicipioTaxaChange">
-                                                <i class="fas fa-arrow-down me-1"></i>
-                                                <span>--</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card">
-                                        <div class="metric-card">
-                                            <h3 class="metric-title">Nascidos Vivos</h3>
-                                            <div class="metric-value" id="metricMunicipioNascidos">--</div>
-                                            <div class="metric-change positive" id="metricMunicipioNascidosChange">
-                                                <i class="fas fa-arrow-up me-1"></i>
-                                                <span>--</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card">
-                                        <div class="metric-card">
-                                            <h3 class="metric-title">Registros Civis</h3>
-                                            <div class="metric-value" id="metricMunicipioRegistros">--</div>
-                                            <div class="metric-change positive" id="metricMunicipioRegistrosChange">
-                                                <i class="fas fa-arrow-up me-1"></i>
-                                                <span>--</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Gráfico de evolução do município -->
-                            <div class="card mb-4">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <span id="chartEvolucaoMunicipioTitle"><i class="fas fa-chart-line me-2"></i>Evolução da Taxa de Subregistro</span>
-                                    <button class="btn btn-sm btn-outline-secondary download-chart" data-chart="chartEvolucaoMunicipio">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                                <div class="card-body">
-                                    <div class="chart-container" id="chartEvolucaoMunicipio">
-                                        <div class="loading-container">
-                                            <div class="spinner"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Gráfico de comparação com média estadual -->
-                            <div class="card mb-4">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-chart-area me-2"></i>Comparação com a Média Estadual</span>
-                                    <button class="btn btn-sm btn-outline-secondary download-chart" data-chart="chartComparativoEstadual">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                                <div class="card-body">
-                                    <div class="chart-container" id="chartComparativoEstadual">
-                                        <div class="loading-container">
-                                            <div class="spinner"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Tabela de todos os municípios -->
-                        <div id="todosMunicipios">
-                            <div class="card mb-4">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-table me-2"></i>Dados de Todos os Municípios</span>
-                                    <div>
-                                        <button class="btn btn-sm btn-outline-secondary me-2" id="btnExportTable">
-                                            <i class="fas fa-download me-1"></i>CSV
-                                        </button>
-                                        <div class="btn-group">
-                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                Ordenar
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li><button class="dropdown-item sort-table" data-sort="taxa" data-order="desc">Taxa (maior → menor)</button></li>
-                                                <li><button class="dropdown-item sort-table" data-sort="taxa" data-order="asc">Taxa (menor → maior)</button></li>
-                                                <li><button class="dropdown-item sort-table" data-sort="municipio" data-order="asc">Município (A → Z)</button></li>
-                                                <li><button class="dropdown-item sort-table" data-sort="nascidos" data-order="desc">Nascidos Vivos (maior → menor)</button></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive" style="max-height: 400px;">
-                                        <table class="table table-striped table-hover custom-table" id="tableMunicipios">
-                                            <thead>
-                                                <tr>
-                                                    <th>Município</th>
-                                                    <th>Nascidos Vivos</th>
-                                                    <th>Registros Civis</th>
-                                                    <th>Taxa de Subregistro</th>
-                                                    <th>Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td colspan="5" class="text-center">Carregando dados...</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Gráfico Top 5 municípios -->
-                            <div class="card mb-4">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-chart-bar me-2"></i>Top 5 Municípios com Maior Taxa de Subregistro</span>
-                                    <button class="btn btn-sm btn-outline-secondary download-chart" data-chart="chartTop5Municipios">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                                <div class="card-body">
-                                    <div class="chart-container" id="chartTop5Municipios">
-                                        <div class="loading-container">
-                                            <div class="spinner"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Tab 3: Séries Históricas -->
-                    <div class="tab-pane fade" id="historico" role="tabpanel" aria-labelledby="historico-tab">
-                        <!-- Evolução histórica da taxa de subregistro -->
-                        <div class="card mb-4">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <span><i class="fas fa-chart-line me-2"></i>Evolução Histórica da Taxa de Subregistro</span>
-                                <button class="btn btn-sm btn-outline-secondary download-chart" data-chart="chartEvolucaoHistorica">
-                                    <i class="fas fa-download"></i>
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <div class="chart-container" id="chartEvolucaoHistorica">
-                                    <div class="loading-container">
-                                        <div class="spinner"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Conteúdo condicional sobre unidades interligadas -->
-                        <div id="unidadesInterligadasContent">
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <i class="fas fa-hospital me-2"></i>Unidades Interligadas em Hospitais
-                                </div>
-                                <div class="card-body">
-                                    <div class="row mb-4">
-                                        <div class="col-md-3">
-                                            <div class="card bg-light">
-                                                <div class="card-body text-center">
-                                                    <h5 class="card-title">Total de Unidades</h5>
-                                                    <h2 class="mb-0">125</h2>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="card bg-light">
-                                                <div class="card-body text-center">
-                                                    <h5 class="card-title">Unidades Operacionais</h5>
-                                                    <h2 class="mb-0">119</h2>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="card bg-light">
-                                                <div class="card-body text-center">
-                                                    <h5 class="card-title">Problemas de Acesso</h5>
-                                                    <h2 class="mb-0">119</h2>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="card bg-light">
-                                                <div class="card-body text-center">
-                                                    <h5 class="card-title">Risco de Subregistro</h5>
-                                                    <h2 class="mb-0 text-danger">Alto</h2>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="alert-custom alert-info">
-                                        <div class="alert-icon">
-                                            <i class="fas fa-info-circle"></i>
-                                        </div>
-                                        <div>
-                                            <h5>Impacto das Unidades Interligadas</h5>
-                                            <p class="mb-0">As unidades interligadas são essenciais para o registro civil de nascimento nas maternidades, contribuindo significativamente para a redução do subregistro. A política recente do ON-RCPN pode comprometer esse avanço.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Conteúdo condicional sobre COGEX -->
-                        <div id="infoCoGEXContent">
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <i class="fas fa-building me-2"></i>Informações sobre a COGEX
-                                </div>
-                                <div class="card-body">
-                                    <p>A Corregedoria Geral do Foro Extrajudicial (COGEX) foi criada pela Lei Complementar n.º 271, de 25 de junho de 2024, com competência para fiscalizar os serviços extrajudiciais do Estado do Maranhão.</p>
-                                    
-                                    <h5 class="mt-4">Principais desafios relacionados ao registro civil:</h5>
-                                    <ul>
-                                        <li>Ressarcimentos não integrais pelo FERC aos registradores civis</li>
-                                        <li>A partir de janeiro/2025, o ON-RCPN adotou entendimento pelo qual apenas delegatários, interinos ou prepostos podem emitir certidões em papel nas unidades interligadas</li>
-                                        <li>Risco de aumento do subregistro devido à preferência da população por certidões em papel</li>
-                                    </ul>
-                                    
-                                    <h5 class="mt-4">Principais Ações Recomendadas</h5>
-                                    <div class="table-responsive">
-                                        <table class="table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>Problema</th>
-                                                    <th>Ação Recomendada</th>
-                                                    <th>Prazo</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>Ressarcimentos não integrais pelo FERC</td>
-                                                    <td>Regularizar fluxo de ressarcimentos e garantir pagamento integral aos registradores</td>
-                                                    <td>30 dias</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Limitação na emissão de certidões em unidades interligadas</td>
-                                                    <td>Implementar campanha de conscientização sobre validade da certidão digital</td>
-                                                    <td>60 dias</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Falta de capacitação em LGPD e PLD/FT</td>
-                                                    <td>Estabelecer programa institucional de capacitação</td>
-                                                    <td>90 dias</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <h3>Dados Estatísticos</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Métrica</th>
+                                <th>Quantidade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Processos em tramitação (acervo total)</td>
+                                <td>3.530</td>
+                            </tr>
+                            <tr>
+                                <td>Processos suspensos ou sobrestados</td>
+                                <td>85</td>
+                            </tr>
+                            <tr>
+                                <td>Processos em tramitação (acervo ajustado)</td>
+                                <td>546</td>
+                            </tr>
+                            <tr>
+                                <td>Processos conclusos</td>
+                                <td>227</td>
+                            </tr>
+                            <tr>
+                                <td>Processos autuados (últimos 12 meses)</td>
+                                <td>2.006</td>
+                            </tr>
+                            <tr>
+                                <td>Processos baixados (últimos 12 meses)</td>
+                                <td>2.674</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
+        </section>
+
+        <section id="serventias" class="section">
+            <div class="section-header">
+                <h2>Serventias Extrajudiciais Inspecionadas</h2>
+                <button class="toggle-btn" data-target="serventias-content">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+            </div>
+            <div id="serventias-content" class="section-content collapse show">
+                <div class="card-container">
+                    <div class="card">
+                        <div class="card-title">1º Ofício de São José de Ribamar</div>
+                        <div class="card-value">CNS: 03.146-8</div>
+                        <div class="card-description">Situação: Vaga (Interino: Raphael Lauand Martins de Melo)</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">2º Ofício de São José de Ribamar</div>
+                        <div class="card-value">CNS: 02.983-5</div>
+                        <div class="card-description">Situação: Provida (Delegatário: Marcos Weba)</div>
+                    </div>
+                    <div class="card alert">
+                        <div class="card-title">Serventia de Bacabeira</div>
+                        <div class="card-value">CNS: 14.869-2</div>
+                        <div class="card-description">Situação: Provida (Delegatário: Fernando Antônio Costa Soares)</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Serventia de Raposa</div>
+                        <div class="card-value">CNS: 14.912-0</div>
+                        <div class="card-description">Situação: Provida (Delegatário: Gustavo Aníbal Macedo Coelho)</div>
+                    </div>
+                </div>
+
+                <h3>Detalhes das Serventias Inspecionadas</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Serventia</th>
+                                <th>Atribuições</th>
+                                <th>Data de Criação</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1º Ofício de São José de Ribamar</td>
+                                <td>Protesto de Títulos; Registro de Imóveis</td>
+                                <td>03/01/1953</td>
+                                <td><span class="status-indicator status-pending"></span> Vaga (Interino)</td>
+                            </tr>
+                            <tr>
+                                <td>2º Ofício de São José de Ribamar</td>
+                                <td>Notas; Registro Civil; Registro de Contratos Marítimos; Registro de Títulos e Documentos e Civis das Pessoas Jurídicas</td>
+                                <td>01/04/1964</td>
+                                <td><span class="status-indicator status-active"></span> Provida</td>
+                            </tr>
+                            <tr class="highlight">
+                                <td>Serventia de Bacabeira</td>
+                                <td>Notas; Protesto de Títulos; Registro Civil; Registro de Contratos Marítimos; Registro de Imóveis; Registro de Títulos e Documentos e Civis das Pessoas Jurídicas</td>
+                                <td>18/01/2010</td>
+                                <td><span class="status-indicator status-active"></span> Provida (Graves irregularidades)</td>
+                            </tr>
+                            <tr>
+                                <td>Serventia de Raposa</td>
+                                <td>Notas; Protesto de Títulos; Registro Civil; Registro de Contratos Marítimos; Registro de Imóveis; Registro de Títulos e Documentos e Civis das Pessoas Jurídicas</td>
+                                <td>18/01/2010</td>
+                                <td><span class="status-indicator status-active"></span> Provida</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="estatisticas" class="section">
+            <div class="section-header">
+                <h2>Estatísticas e Análise de Dados</h2>
+                <button class="toggle-btn" data-target="estatisticas-content">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+            </div>
+            <div id="estatisticas-content" class="section-content collapse show">
+                <div class="card-container">
+                    <div class="card">
+                        <div class="card-title">Total de Serventias</div>
+                        <div class="card-value">285</div>
+                        <div class="card-description">Serventias extrajudiciais no Maranhão</div>
+                    </div>
+                    <div class="card warning">
+                        <div class="card-title">Cadastradas no Justiça Aberta</div>
+                        <div class="card-value">214</div>
+                        <div class="card-description">75,1% do total</div>
+                    </div>
+                    <div class="card danger">
+                        <div class="card-title">Serventias Sob Intervenção</div>
+                        <div class="card-value">4</div>
+                        <div class="card-description">1,4% do total</div>
+                    </div>
+                    <div class="card info">
+                        <div class="card-title">Concurso em Andamento</div>
+                        <div class="card-value">88</div>
+                        <div class="card-description">Serventias vagas ofertadas</div>
+                    </div>
+                </div>
+
+                <h3>Fluxo Processual (últimos 12 meses)</h3>
+                <div class="chart-container">
+                    <canvas id="fluxoProcessual"></canvas>
+                </div>
+
+                <h3>Processos por Classe</h3>
+                <div class="chart-container">
+                    <canvas id="processosPorClasse"></canvas>
+                </div>
+
+                <h3>Processos Disciplinares</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Distribuídos</th>
+                                <th>Julgados</th>
+                                <th>Paralisados (>100 dias)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Pedido de Providências</td>
+                                <td>164</td>
+                                <td>182</td>
+                                <td>34</td>
+                            </tr>
+                            <tr>
+                                <td>Inspeção</td>
+                                <td>112</td>
+                                <td>53</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td>Procedimento de Controle de Serventias</td>
+                                <td>50</td>
+                                <td>48</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td>Processo Administrativo Disciplinar</td>
+                                <td>12</td>
+                                <td>9</td>
+                                <td>0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="irregularidades" class="section">
+            <div class="section-header">
+                <h2>Principais Irregularidades Encontradas</h2>
+                <button class="toggle-btn" data-target="irregularidades-content">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+            </div>
+            <div id="irregularidades-content" class="section-content collapse show">
+                <div class="card-container">
+                    <div class="card alert alert-action-needed">
+                        <div class="card-title">Serventia de Bacabeira</div>
+                        <div class="card-value">Alta Gravidade</div>
+                        <div class="card-description">Depósito de emolumentos em contas de terceiros, contratos irregulares</div>
+                    </div>
+                    <div class="card warning">
+                        <div class="card-title">1º Ofício de São José de Ribamar</div>
+                        <div class="card-value">Média Gravidade</div>
+                        <div class="card-description">Irregularidades em matrículas e registros de loteamentos</div>
+                    </div>
+                    <div class="card warning">
+                        <div class="card-title">2º Ofício de São José de Ribamar</div>
+                        <div class="card-value">Média Gravidade</div>
+                        <div class="card-description">Atos sem assinaturas, atrasos no CRC/SIRC</div>
+                    </div>
+                    <div class="card info">
+                        <div class="card-title">Documentação COGEX</div>
+                        <div class="card-value">Baixa Gravidade</div>
+                        <div class="card-description">Desconhecimento de atos de criação de serventias</div>
+                    </div>
+                </div>
+
+                <h3>Irregularidades Graves Identificadas</h3>
+                <ul>
+                    <li><strong>Depósito em contas de terceiros</strong>: Na Serventia de Bacabeira, foi encontrado depósito de emolumentos em conta de terceiro (Lucyana F C S Paiva, filha do delegatário).</li>
+                    <li><strong>Contratações irregulares</strong>: Admissões realizadas à margem das disposições normativas aplicáveis, com prepostos sem registro formal (Serventia de Bacabeira).</li>
+                    <li><strong>Atos sem selo de fiscalização</strong>: Ausência do selo obrigatório em diversos atos notariais.</li>
+                    <li><strong>Irregularidades em matrículas</strong>: Erros e omissões que comprometem a confiabilidade do sistema registral imobiliário (1º Ofício de São José de Ribamar).</li>
+                    <li><strong>Atos a rogo sem testemunhas</strong>: Desrespeito às formalidades legais exigidas para esse tipo de ato (Serventia de Bacabeira).</li>
+                    <li><strong>Falta de controle financeiro</strong>: Ausência de livro caixa e controle de receitas (Serventia de Bacabeira).</li>
+                </ul>
+
+                <h3>Cumprimento da Legislação PLD/FTP</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Serventia</th>
+                                <th>Comunicações ao COAF</th>
+                                <th>Período</th>
+                                <th>Total de Atos</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1º Ofício de São José de Ribamar</td>
+                                <td>134</td>
+                                <td>11/08/2020 a 08/01/2025</td>
+                                <td>421.369</td>
+                                <td><span class="badge badge-danger">Irregular</span></td>
+                            </tr>
+                            <tr>
+                                <td>2º Ofício de São José de Ribamar</td>
+                                <td>0</td>
+                                <td>Não há</td>
+                                <td>N/A</td>
+                                <td><span class="badge badge-danger">Não conformidade</span></td>
+                            </tr>
+                            <tr>
+                                <td>Serventia de Bacabeira</td>
+                                <td>17</td>
+                                <td>12/04/2022 a 03/05/2022</td>
+                                <td>14.836</td>
+                                <td><span class="badge badge-danger">Irregular</span></td>
+                            </tr>
+                            <tr>
+                                <td>Serventia de Raposa</td>
+                                <td>258</td>
+                                <td>10/02/2020 a 22/01/2025</td>
+                                <td>102.370</td>
+                                <td><span class="badge badge-warning">Parcial</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="recomendacoes" class="section">
+            <div class="section-header">
+                <h2>Recomendações e Determinações</h2>
+                <button class="toggle-btn" data-target="recomendacoes-content">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+            </div>
+            <div id="recomendacoes-content" class="section-content collapse show">
+                <div class="card-container">
+                    <div class="card alert">
+                        <div class="card-title">Imediatas (30 dias)</div>
+                        <div class="card-value">14</div>
+                        <div class="card-description">Ações prioritárias</div>
+                    </div>
+                    <div class="card warning">
+                        <div class="card-title">Prazo Médio (60 dias)</div>
+                        <div class="card-value">8</div>
+                        <div class="card-description">Ações importantes</div>
+                    </div>
+                    <div class="card info">
+                        <div class="card-title">Longo Prazo (90+ dias)</div>
+                        <div class="card-value">5</div>
+                        <div class="card-description">Ações estratégicas</div>
+                    </div>
+                    <div class="card success">
+                        <div class="card-title">Intervenção</div>
+                        <div class="card-value">1</div>
+                        <div class="card-description">Serventia de Bacabeira</div>
+                    </div>
+                </div>
+
+                <h3>Principais Determinações</h3>
+                <ol>
+                    <li><strong>Intervenção Imediata na Serventia de Bacabeira</strong>: Afastamento cautelar do delegatário Fernando Antônio Costa Soares devido às graves irregularidades identificadas.</li>
+                    <li><strong>Atualização do Sistema Justiça Aberta</strong>: Todas as serventias devem atualizar os dados no prazo de 30 dias.</li>
+                    <li><strong>Regularização das Contratações</strong>: Correção das irregularidades trabalhistas e formalização dos contratos de trabalho.</li>
+                    <li><strong>Implementação de PLD/FTP</strong>: Capacitação em prevenção à lavagem de dinheiro e ao financiamento do terrorismo.</li>
+                    <li><strong>Correção de Matrículas</strong>: Revisão e correção das irregularidades em matrículas e registros de loteamentos.</li>
+                    <li><strong>Integração com Operadores Nacionais</strong>: Regularização da situação com ON-RCPN, CNB, ON-RTDPJ.</li>
+                    <li><strong>Implementação de LGPD</strong>: Adequação à Lei Geral de Proteção de Dados em todas as serventias.</li>
+                    <li><strong>Sistema de Controle Financeiro</strong>: Modificação do sistema de gestão de pagamentos, prestação de contas, receitas e despesas dos cartórios sob interinidade.</li>
+                </ol>
+
+                <h3>Prazos de Cumprimento</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Determinação</th>
+                                <th>Prazo</th>
+                                <th>Responsável</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Intervenção na Serventia de Bacabeira</td>
+                                <td>30 dias</td>
+                                <td>COGEX</td>
+                                <td><span class="badge badge-warning">Pendente</span></td>
+                            </tr>
+                            <tr>
+                                <td>Justificativa de ressarcimentos não-integrais pelo FERC</td>
+                                <td>30 dias</td>
+                                <td>COGEX</td>
+                                <td><span class="badge badge-warning">Pendente</span></td>
+                            </tr>
+                            <tr>
+                                <td>Lista de serventias com atos de criação desconhecidos</td>
+                                <td>30 dias</td>
+                                <td>COGEX</td>
+                                <td><span class="badge badge-warning">Pendente</span></td>
+                            </tr>
+                            <tr>
+                                <td>Revisão de atos sob a Lei n. 9.613/1998 (1º Ofício de São José de Ribamar)</td>
+                                <td>90 dias</td>
+                                <td>COGEX</td>
+                                <td><span class="badge badge-warning">Pendente</span></td>
+                            </tr>
+                            <tr>
+                                <td>Regularização de cadastros no Justiça Aberta</td>
+                                <td>30 dias</td>
+                                <td>Todas as serventias</td>
+                                <td><span class="badge badge-warning">Pendente</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
     </main>
-    
-    <!-- Footer -->
-    <footer class="dashboard-footer">
+
+    <footer>
         <div class="container">
-            <p>© 2025 Corregedoria Geral do Foro Extrajudicial do TJMA. Dados atualizados em maio de 2025.</p>
+            <div class="footer-content">
+                <p>Relatório de Inspeção Ordinária - Tribunal de Justiça do Estado do Maranhão</p>
+                <p>© 2025 - Conselho Nacional de Justiça</p>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Políticas de Privacidade</a>
+                    <a href="#" class="footer-link">Termos de Uso</a>
+                    <a href="#" class="footer-link">Contato</a>
+                </div>
+            </div>
         </div>
     </footer>
 
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- App JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script>
-        // Variáveis globais
-        let dadosMunicipios = [];
-        let dadosRegioes = [];
-        let metadados = {};
-        let anoSelecionado = null;
-        let municipioSelecionado = 'todos';
-        let regioesSelecionadas = ['Brasil', 'Maranhão'];
-
-        // Funções para formatar números
-        function formatarNumero(numero) {
-            return numero.toLocaleString('pt-BR');
-        }
-
-        function formatarPercentual(valor) {
-            return valor.toFixed(1) + '%';
-        }
-
-        // Função para carregar dados de arquivos JSON
-        async function carregarDados() {
-            try {
-                // Mostrar todos os loaders
-                document.querySelectorAll('.loading-container').forEach(loader => {
-                    loader.style.display = 'flex';
-                });
-                
-                // Carregar arquivos JSON
-                const [respostaMetadados, respostaMunicipios, respostaRegioes] = await Promise.all([
-                    fetch('data/metadados.json'),
-                    fetch('data/municipios.json'),
-                    fetch('data/regioes.json')
-                ]);
-                
-                // Processar respostas
-                metadados = await respostaMetadados.json();
-                dadosMunicipios = await respostaMunicipios.json();
-                dadosRegioes = await respostaRegioes.json();
-                
-                console.log('Dados carregados com sucesso!');
-                console.log('Metadados:', metadados);
-                
-                // Inicializar interface após carregamento dos dados
-                inicializarInterface();
-                
-            } catch (erro) {
-                console.error('Erro ao carregar dados:', erro);
-                
-                // Mostrar mensagem de erro
-                alert('Erro ao carregar dados. Consulte o console para mais detalhes.');
-                
-                // Usar dados de demonstração em caso de erro
-                usarDadosDemonstracao();
-            } finally {
-                // Ocultar todos os loaders
-                document.querySelectorAll('.loading-container').forEach(loader => {
-                    loader.style.display = 'none';
-                });
-            }
-        }
-
-        // Função para usar dados de demonstração em caso de erro
-        function usarDadosDemonstracao() {
-            console.log('Usando dados de demonstração...');
-            
-            // Dados demonstrativos para municípios
-            dadosMunicipios = [
-                { "Município": "São Luís", "Ano": 2023, "Nascidos_Vivos": 16852, "Registros_Civil": 16431, "Taxa_Subregistro": 2.5 },
-                { "Município": "Imperatriz", "Ano": 2023, "Nascidos_Vivos": 3687, "Registros_Civil": 3540, "Taxa_Subregistro": 4.0 },
-                { "Município": "São José de Ribamar", "Ano": 2023, "Nascidos_Vivos": 2654, "Registros_Civil": 2458, "Taxa_Subregistro": 7.4 },
-                { "Município": "Timon", "Ano": 2023, "Nascidos_Vivos": 2557, "Registros_Civil": 2442, "Taxa_Subregistro": 4.5 },
-                { "Município": "Caxias", "Ano": 2023, "Nascidos_Vivos": 2463, "Registros_Civil": 2280, "Taxa_Subregistro": 7.4 },
-                { "Município": "Codó", "Ano": 2023, "Nascidos_Vivos": 1840, "Registros_Civil": 1710, "Taxa_Subregistro": 7.1 },
-                { "Município": "Bacabeira", "Ano": 2023, "Nascidos_Vivos": 241, "Registros_Civil": 218, "Taxa_Subregistro": 9.5 },
-                { "Município": "Raposa", "Ano": 2023, "Nascidos_Vivos": 462, "Registros_Civil": 423, "Taxa_Subregistro": 8.4 },
-                { "Município": "Paço do Lumiar", "Ano": 2023, "Nascidos_Vivos": 2231, "Registros_Civil": 2113, "Taxa_Subregistro": 5.3 },
-                { "Município": "Balsas", "Ano": 2023, "Nascidos_Vivos": 1447, "Registros_Civil": 1374, "Taxa_Subregistro": 5.0 },
-                { "Município": "Santa Inês", "Ano": 2023, "Nascidos_Vivos": 1354, "Registros_Civil": 1259, "Taxa_Subregistro": 7.0 },
-                { "Município": "Açailândia", "Ano": 2023, "Nascidos_Vivos": 1694, "Registros_Civil": 1593, "Taxa_Subregistro": 6.0 },
-                { "Município": "Buriticupu", "Ano": 2023, "Nascidos_Vivos": 1092, "Registros_Civil": 984, "Taxa_Subregistro": 9.9 },
-                { "Município": "Barra do Corda", "Ano": 2023, "Nascidos_Vivos": 1320, "Registros_Civil": 1208, "Taxa_Subregistro": 8.5 }
-            ];
-            
-            // Anos anteriores (simulados)
-            const anosAnteriores = [2018, 2019, 2020, 2021, 2022];
-            const municipiosUnicos = [...new Set(dadosMunicipios.map(m => m.Município))];
-            
-            for (const municipio of municipiosUnicos) {
-                for (const ano of anosAnteriores) {
-                    const municipioAtual = dadosMunicipios.find(m => m.Município === municipio && m.Ano === 2023);
-                    
-                    // Taxa de subregistro diminuindo ao longo dos anos
-                    const fatorHistorico = Math.max(0.8, (2024 - ano) / 10);
-                    const taxaBase = municipioAtual.Taxa_Subregistro;
-                    const taxa = taxaBase * fatorHistorico * (1 + (Math.random() * 0.2 - 0.1));
-                    
-                    // População aumentando levemente
-                    const nascidosBase = municipioAtual.Nascidos_Vivos;
-                    const popFator = (ano - 2018) / (2023 - 2018);
-                    const nascidos = Math.round(nascidosBase * (0.9 + 0.1 * popFator) * (1 + (Math.random() * 0.1 - 0.05)));
-                    
-                    // Registros com base na taxa de subregistro
-                    const registros = Math.round(nascidos * (1 - taxa/100));
-                    
-                    dadosMunicipios.push({
-                        "Município": municipio,
-                        "Ano": ano,
-                        "Nascidos_Vivos": nascidos,
-                        "Registros_Civil": registros,
-                        "Taxa_Subregistro": Math.max(0, Math.min(15, taxa))
-                    });
+        // Animação de entrada das seções
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
                 }
-            }
-            
-            // Dados demonstrativos para regiões
-            dadosRegioes = [
-                { "Região": "Brasil", "Ano": 2023, "Nascidos_Vivos": 2805901, "Registros_Civil": 2749783, "Taxa_Subregistro": 2.0 },
-                { "Região": "Nordeste", "Ano": 2023, "Nascidos_Vivos": 868204, "Registros_Civil": 834676, "Taxa_Subregistro": 3.8 },
-                { "Região": "Norte", "Ano": 2023, "Nascidos_Vivos": 322542, "Registros_Civil": 308528, "Taxa_Subregistro": 4.3 },
-                { "Região": "Sudeste", "Ano": 2023, "Nascidos_Vivos": 1096275, "Registros_Civil": 1078831, "Taxa_Subregistro": 1.6 },
-                { "Região": "Sul", "Ano": 2023, "Nascidos_Vivos": 339958, "Registros_Civil": 336559, "Taxa_Subregistro": 1.0 },
-                { "Região": "Centro-Oeste", "Ano": 2023, "Nascidos_Vivos": 178922, "Registros_Civil": 176190, "Taxa_Subregistro": 1.5 },
-                { "Região": "Maranhão", "Ano": 2023, "Nascidos_Vivos": 107537, "Registros_Civil": 102160, "Taxa_Subregistro": 5.0 }
-            ];
-            
-            // Anos anteriores (simulados)
-            for (const região of dadosRegioes) {
-                for (const ano of anosAnteriores) {
-                    // Taxa de subregistro diminuindo ao longo dos anos
-                    const fatorHistorico = Math.max(0.8, (2024 - ano) / 10);
-                    const taxaBase = região.Taxa_Subregistro;
-                    const taxa = taxaBase * fatorHistorico * (1 + (Math.random() * 0.2 - 0.1));
-                    
-                    // População aumentando levemente
-                    const nascidosBase = região.Nascidos_Vivos;
-                    const popFator = (ano - 2018) / (2023 - 2018);
-                    const nascidos = Math.round(nascidosBase * (0.9 + 0.1 * popFator) * (1 + (Math.random() * 0.1 - 0.05)));
-                    
-                    // Registros com base na taxa de subregistro
-                    const registros = Math.round(nascidos * (1 - taxa/100));
-                    
-                    dadosRegioes.push({
-                        "Região": região.Região,
-                        "Ano": ano,
-                        "Nascidos_Vivos": nascidos,
-                        "Registros_Civil": registros,
-                        "Taxa_Subregistro": Math.max(0, Math.min(15, taxa))
-                    });
-                }
-            }
-            
-            // Criar metadados com base nos dados de demonstração
-            metadados = {
-                "anos_disponiveis": [2018, 2019, 2020, 2021, 2022, 2023],
-                "municipios_disponiveis": municipiosUnicos,
-                "regioes_disponiveis": [...new Set(dadosRegioes.map(r => r.Região))],
-                "data_atualizacao": new Date().toISOString()
-            };
-            
-            // Inicializar interface com dados de demonstração
-            inicializarInterface();
-        }
+            });
+        }, { threshold: 0.1 });
 
-        // Função para inicializar a interface após o carregamento dos dados
-        function inicializarInterface() {
-            // Configurar seletores de ano
-            const selectAno = document.getElementById('selectAno');
-            selectAno.innerHTML = ''; // Limpar opções existentes
-            
-            if (metadados.anos_disponiveis && metadados.anos_disponiveis.length > 0) {
-                // Ordenar anos em ordem decrescente
-                const anosOrdenados = [...metadados.anos_disponiveis].sort((a, b) => b - a);
-                
-                // Adicionar opções para cada ano
-                anosOrdenados.forEach(ano => {
-                    const option = document.createElement('option');
-                    option.value = ano;
-                    option.textContent = ano;
-                    selectAno.appendChild(option);
-                });
-                
-                // Selecionar o ano mais recente por padrão
-                anoSelecionado = anosOrdenados[0];
-                selectAno.value = anoSelecionado;
-            } else {
-                // Caso não haja anos disponíveis
-                const option = document.createElement('option');
-                option.value = '';
-                option.textContent = 'Nenhum ano disponível';
-                selectAno.appendChild(option);
-            }
-            
-            // Configurar seletor de município
-            const selectMunicipio = document.getElementById('selectMunicipio');
-            selectMunicipio.innerHTML = '<option value="todos">Todos os Municípios</option>'; // Reset com opção padrão
-            
-            if (metadados.municipios_disponiveis && metadados.municipios_disponiveis.length > 0) {
-                // Ordenar municípios em ordem alfabética
-                const municipiosOrdenados = [...metadados.municipios_disponiveis].sort();
-                
-                // Adicionar opções para cada município
-                municipiosOrdenados.forEach(municipio => {
-                    const option = document.createElement('option');
-                    option.value = municipio;
-                    option.textContent = municipio;
-                    selectMunicipio.appendChild(option);
-                });
-            }
-            
-            // Configurar checkboxes de regiões
-            const checkboxesRegioes = document.getElementById('checkboxesRegioes');
-            checkboxesRegioes.innerHTML = ''; // Limpar conteúdo existente
-            
-            if (metadados.regioes_disponiveis && metadados.regioes_disponiveis.length > 0) {
-                // Ordenar regiões
-                const regioesOrdenadas = [...metadados.regioes_disponiveis].sort();
-                
-                // Adicionar checkbox para cada região
-                regioesOrdenadas.forEach(regiao => {
-                    const divCheck = document.createElement('div');
-                    divCheck.className = 'form-check';
-                    
-                    const input = document.createElement('input');
-                    input.className = 'form-check-input checkbox-regiao';
-                    input.type = 'checkbox';
-                    input.id = `check-${regiao.replace(/\s+/g, '-').toLowerCase()}`;
-                    input.value = regiao;
-                    // Selecionar Brasil e Maranhão por padrão se existirem
-                    input.checked = (regiao === 'Brasil' || regiao === 'Maranhão');
-                    
-                    const label = document.createElement('label');
-                    label.className = 'form-check-label';
-                    label.htmlFor = input.id;
-                    label.textContent = regiao;
-                    
-                    divCheck.appendChild(input);
-                    divCheck.appendChild(label);
-                    checkboxesRegioes.appendChild(divCheck);
-                });
-            }
-            
-            // Configurar evento de mudança para checkboxes de regiões
-            document.querySelectorAll('.checkbox-regiao').forEach(checkbox => {
-                checkbox.addEventListener('change', () => {
-                    // Atualizar array de regiões selecionadas
-                    regioesSelecionadas = Array.from(document.querySelectorAll('.checkbox-regiao:checked')).map(cb => cb.value);
-                    
-                    // Atualizar gráficos relacionados
-                    atualizarGraficoEvolucaoHistorica();
-                });
-            });
-            
-            // Configurar eventos para elementos da interface
-            configurarEventos();
-            
-            // Atualizar visualizações com dados carregados
-            atualizarVisualizacoes();
-        }
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
 
-        // Função para configurar eventos dos elementos da interface
-        function configurarEventos() {
-            // Evento para mudança de ano
-            document.getElementById('selectAno').addEventListener('change', function() {
-                anoSelecionado = this.value;
-                atualizarVisualizacoes();
+        // Toggle collapse
+        document.querySelectorAll('.toggle-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-target');
+                const targetElement = document.getElementById(targetId);
+                targetElement.classList.toggle('show');
             });
-            
-            // Evento para mudança de município
-            document.getElementById('selectMunicipio').addEventListener('change', function() {
-                municipioSelecionado = this.value;
-                
-                // Mostrar/ocultar conteúdo com base na seleção
-                if (municipioSelecionado === 'todos') {
-                    document.getElementById('todosMunicipios').style.display = 'block';
-                    document.getElementById('municipioDetalhado').style.display = 'none';
-                } else {
-                    document.getElementById('todosMunicipios').style.display = 'none';
-                    document.getElementById('municipioDetalhado').style.display = 'block';
-                    
-                    // Atualizar título do gráfico de evolução
-                    document.getElementById('chartEvolucaoMunicipioTitle').innerHTML = 
-                        `<i class="fas fa-chart-line me-2"></i>Evolução da Taxa de Subregistro em ${municipioSelecionado}`;
-                }
-                
-                // Atualizar visualizações
-                atualizarVisualizacoes();
-            });
-            
-            // Evento para unidades interligadas
-            document.getElementById('checkUnidadesInterligadas').addEventListener('change', function() {
-                document.getElementById('unidadesInterligadasContent').style.display = this.checked ? 'block' : 'none';
-            });
-            
-            // Evento para informações COGEX
-            document.getElementById('checkInfoCogex').addEventListener('change', function() {
-                document.getElementById('infoCoGEXContent').style.display = this.checked ? 'block' : 'none';
-            });
-            
-            // Evento para resetar filtros
-            document.getElementById('btnResetFilters').addEventListener('click', function() {
-                // Resetar ano para o mais recente
-                const selectAno = document.getElementById('selectAno');
-                selectAno.selectedIndex = 0;
-                anoSelecionado = selectAno.value;
-                
-                // Resetar município para "todos"
-                document.getElementById('selectMunicipio').value = 'todos';
-                municipioSelecionado = 'todos';
-                
-                // Mostrar conteúdo de "todos os municípios"
-                document.getElementById('todosMunicipios').style.display = 'block';
-                document.getElementById('municipioDetalhado').style.display = 'none';
-                
-                // Resetar checkboxes de regiões (selecionar apenas Brasil e Maranhão)
-                document.querySelectorAll('.checkbox-regiao').forEach(checkbox => {
-                    checkbox.checked = (checkbox.value === 'Brasil' || checkbox.value === 'Maranhão');
-                });
-                
-                // Atualizar array de regiões selecionadas
-                regioesSelecionadas = Array.from(document.querySelectorAll('.checkbox-regiao:checked')).map(cb => cb.value);
-                
-                // Resetar outros checkboxes
-                document.getElementById('checkUnidadesInterligadas').checked = true;
-                document.getElementById('checkInfoCogex').checked = true;
-                
-                // Mostrar conteúdos relacionados
-                document.getElementById('unidadesInterligadasContent').style.display = 'block';
-                document.getElementById('infoCoGEXContent').style.display = 'block';
-                
-                // Atualizar visualizações
-                atualizarVisualizacoes();
-            });
-            
-            // Evento para exportar tabela
-            document.getElementById('btnExportTable').addEventListener('click', exportarTabelaCSV);
-            
-            // Eventos para ordenação da tabela
-            document.querySelectorAll('.sort-table').forEach(button => {
-                button.addEventListener('click', function() {
-                    const sortField = this.getAttribute('data-sort');
-                    const sortOrder = this.getAttribute('data-order');
-                    
-                    // Ordenar e atualizar tabela
-                    atualizarTabelaMunicipios(sortField, sortOrder);
-                });
-            });
-            
-            // Eventos para download de gráficos
-            document.querySelectorAll('.download-chart').forEach(button => {
-                button.addEventListener('click', function() {
-                    const chartId = this.getAttribute('data-chart');
-                    exportarGrafico(chartId);
-                });
-            });
-            
-            // Evento para exportar dados completos
-            document.getElementById('btnExportData').addEventListener('click', exportarDadosCompletos);
-        }
+        });
 
-        // Função para atualizar todas as visualizações
-        function atualizarVisualizacoes() {
-            // Atualizar métricas principais
-            atualizarMetricas();
-            
-            // Atualizar gráficos do panorama geral
-            atualizarGraficoTaxaRegiao();
-            atualizarGraficoTaxaMunicipio();
-            
-            // Atualizar visualizações de município
-            if (municipioSelecionado === 'todos') {
-                atualizarTabelaMunicipios();
-                atualizarGraficoTop5Municipios();
-            } else {
-                atualizarMetricasMunicipio();
-                atualizarGraficoEvolucaoMunicipio();
-                atualizarGraficoComparativoEstadual();
-            }
-            
-            // Atualizar séries históricas
-            atualizarGraficoEvolucaoHistorica();
-        }
+        // Animação das barras de progresso
+        document.querySelectorAll('.progress').forEach(progress => {
+            setTimeout(() => {
+                const value = progress.getAttribute('data-value');
+                progress.style.width = `${value}%`;
+            }, 500);
+        });
 
-        // Função para atualizar métricas principais
-        function atualizarMetricas() {
-            try {
-                // Filtrar dados do Maranhão para o ano selecionado
-                const dadosMAAtual = dadosRegioes.find(r => r.Região === 'Maranhão' && r.Ano == anoSelecionado);
-                const dadosBRAtual = dadosRegioes.find(r => r.Região === 'Brasil' && r.Ano == anoSelecionado);
-                
-                // Encontrar dados do ano anterior para comparação
-                const anoAnterior = parseInt(anoSelecionado) - 1;
-                const dadosMAAnterior = dadosRegioes.find(r => r.Região === 'Maranhão' && r.Ano == anoAnterior);
-                
-                if (dadosMAAtual) {
-                    // Atualizar taxa de subregistro
-                    document.getElementById('metricTaxaSubregistro').textContent = formatarPercentual(dadosMAAtual.Taxa_Subregistro);
-                    
-                    // Calcular diferença com Brasil
-                    if (dadosBRAtual) {
-                        const diff = dadosMAAtual.Taxa_Subregistro - dadosBRAtual.Taxa_Subregistro;
-                        const diffText = (diff >= 0 ? '+' : '') + formatarPercentual(diff);
-                        document.getElementById('metricTaxaSubregistroChange').innerHTML = 
-                            `<i class="fas fa-arrow-${diff >= 0 ? 'up' : 'down'} me-1"></i>${diffText} vs Brasil`;
-                        
-                        // Ajustar classe para cor
-                        document.getElementById('metricTaxaSubregistroChange').className = 
-                            `metric-change ${diff >= 0 ? 'negative' : 'positive'}`;
-                    }
-                    
-                    // Atualizar nascidos vivos
-                    document.getElementById('metricNascidosVivos').textContent = formatarNumero(dadosMAAtual.Nascidos_Vivos);
-                    
-                    // Calcular variação em relação ao ano anterior
-                    if (dadosMAAnterior) {
-                        const diffNascidos = ((dadosMAAtual.Nascidos_Vivos / dadosMAAnterior.Nascidos_Vivos) - 1) * 100;
-                        const diffNascidosText = (diffNascidos >= 0 ? '+' : '') + formatarPercentual(diffNascidos);
-                        document.getElementById('metricNascidosVivosChange').innerHTML = 
-                            `<i class="fas fa-arrow-${diffNascidos >= 0 ? 'up' : 'down'} me-1"></i>${diffNascidosText} vs ${anoAnterior}`;
-                        
-                        // Ajustar classe para cor
-                        document.getElementById('metricNascidosVivosChange').className = 
-                            `metric-change ${diffNascidos >= 0 ? 'positive' : 'negative'}`;
-                    }
-                    
-                    // Atualizar registros civis
-                    document.getElementById('metricRegistrosCivis').textContent = formatarNumero(dadosMAAtual.Registros_Civil);
-                    
-                    // Calcular variação em relação ao ano anterior
-                    if (dadosMAAnterior) {
-                        const diffRegistros = ((dadosMAAtual.Registros_Civil / dadosMAAnterior.Registros_Civil) - 1) * 100;
-                        const diffRegistrosText = (diffRegistros >= 0 ? '+' : '') + formatarPercentual(diffRegistros);
-                        document.getElementById('metricRegistrosCivisChange').innerHTML = 
-                            `<i class="fas fa-arrow-${diffRegistros >= 0 ? 'up' : 'down'} me-1"></i>${diffRegistrosText} vs ${anoAnterior}`;
-                        
-                        // Ajustar classe para cor
-                        document.getElementById('metricRegistrosCivisChange').className = 
-                            `metric-change ${diffRegistros >= 0 ? 'positive' : 'negative'}`;
-                    }
-                }
-            } catch (erro) {
-                console.error('Erro ao atualizar métricas:', erro);
-            }
-        }
-
-        // Função para atualizar métricas do município selecionado
-        function atualizarMetricasMunicipio() {
-            try {
-                if (municipioSelecionado === 'todos') return;
-                
-                // Filtrar dados do município para o ano selecionado
-                const dadosMunicipioAtual = dadosMunicipios.find(m => 
-                    m.Município === municipioSelecionado && m.Ano == anoSelecionado);
-                
-                // Encontrar dados do ano anterior para comparação
-                const anoAnterior = parseInt(anoSelecionado) - 1;
-                const dadosMunicipioAnterior = dadosMunicipios.find(m => 
-                    m.Município === municipioSelecionado && m.Ano == anoAnterior);
-                
-                if (dadosMunicipioAtual) {
-                    // Atualizar taxa de subregistro
-                    document.getElementById('metricMunicipioTaxa').textContent = formatarPercentual(dadosMunicipioAtual.Taxa_Subregistro);
-                    
-                    // Calcular variação em relação ao ano anterior
-                    if (dadosMunicipioAnterior) {
-                        const diffTaxa = dadosMunicipioAtual.Taxa_Subregistro - dadosMunicipioAnterior.Taxa_Subregistro;
-                        const diffTaxaText = (diffTaxa >= 0 ? '+' : '') + formatarPercentual(diffTaxa);
-                        document.getElementById('metricMunicipioTaxaChange').innerHTML = 
-                            `<i class="fas fa-arrow-${diffTaxa >= 0 ? 'up' : 'down'} me-1"></i>${diffTaxaText} vs ${anoAnterior}`;
-                        
-                        // Ajustar classe para cor (menor taxa é melhor, então lógica inversa)
-                        document.getElementById('metricMunicipioTaxaChange').className = 
-                            `metric-change ${diffTaxa >= 0 ? 'negative' : 'positive'}`;
-                    }
-                    
-                    // Atualizar nascidos vivos
-                    document.getElementById('metricMunicipioNascidos').textContent = formatarNumero(dadosMunicipioAtual.Nascidos_Vivos);
-                    
-                    // Calcular variação em relação ao ano anterior
-                    if (dadosMunicipioAnterior) {
-                        const diffNascidos = ((dadosMunicipioAtual.Nascidos_Vivos / dadosMunicipioAnterior.Nascidos_Vivos) - 1) * 100;
-                        const diffNascidosText = (diffNascidos >= 0 ? '+' : '') + formatarPercentual(diffNascidos);
-                        document.getElementById('metricMunicipioNascidosChange').innerHTML = 
-                            `<i class="fas fa-arrow-${diffNascidos >= 0 ? 'up' : 'down'} me-1"></i>${diffNascidosText} vs ${anoAnterior}`;
-                        
-                        // Ajustar classe para cor
-                        document.getElementById('metricMunicipioNascidosChange').className = 
-                            `metric-change ${diffNascidos >= 0 ? 'positive' : 'negative'}`;
-                    }
-                    
-                    // Atualizar registros civis
-                    document.getElementById('metricMunicipioRegistros').textContent = formatarNumero(dadosMunicipioAtual.Registros_Civil);
-                    
-                    // Calcular variação em relação ao ano anterior
-                    if (dadosMunicipioAnterior) {
-                        const diffRegistros = ((dadosMunicipioAtual.Registros_Civil / dadosMunicipioAnterior.Registros_Civil) - 1) * 100;
-                        const diffRegistrosText = (diffRegistros >= 0 ? '+' : '') + formatarPercentual(diffRegistros);
-                        document.getElementById('metricMunicipioRegistrosChange').innerHTML = 
-                            `<i class="fas fa-arrow-${diffRegistros >= 0 ? 'up' : 'down'} me-1"></i>${diffRegistrosText} vs ${anoAnterior}`;
-                        
-                        // Ajustar classe para cor
-                        document.getElementById('metricMunicipioRegistrosChange').className = 
-                            `metric-change ${diffRegistros >= 0 ? 'positive' : 'negative'}`;
-                    }
-                }
-            } catch (erro) {
-                console.error('Erro ao atualizar métricas do município:', erro);
-            }
-        }
-
-        // Função para atualizar o gráfico de taxa por região
-        function atualizarGraficoTaxaRegiao() {
-            try {
-                const chartContainer = document.getElementById('chartTaxaRegiao');
-                const loadingContainer = chartContainer.querySelector('.loading-container');
-                
-                // Mostrar loader
-                if (loadingContainer) loadingContainer.style.display = 'flex';
-                
-                // Filtrar dados para o ano selecionado
-                const dadosFiltrados = dadosRegioes.filter(r => r.Ano == anoSelecionado);
-                
-                // Ordenar por taxa de subregistro (decrescente)
-                const dadosOrdenados = [...dadosFiltrados].sort((a, b) => b.Taxa_Subregistro - a.Taxa_Subregistro);
-                
-                // Preparar dados para o gráfico
-                const regioes = dadosOrdenados.map(r => r.Região);
-                const taxas = dadosOrdenados.map(r => r.Taxa_Subregistro);
-                
-                // Cores baseadas na taxa (vermelho mais intenso para valores maiores)
-                const cores = taxas.map(taxa => {
-                    const intensidade = Math.min(255, Math.round(50 + (taxa / 10) * 205));
-                    return `rgba(${intensidade}, 50, 50, 0.8)`;
-                });
-                
-                // Configurar dados do gráfico
-                const data = [{
-                    x: regioes,
-                    y: taxas,
-                    type: 'bar',
-                    marker: {
-                        color: cores
-                    },
-                    text: taxas.map(t => t.toFixed(1) + '%'),
-                    textposition: 'auto',
-                    hoverinfo: 'x+y',
-                    hovertemplate: '%{y:.1f}%<extra>%{x}</extra>'
-                }];
-                
-                // Layout do gráfico
-                const layout = {
-                    title: `Taxa de Subregistro por Região - ${anoSelecionado}`,
-                    xaxis: {
-                        title: '',
-                        tickangle: -45
-                    },
-                    yaxis: {
-                        title: 'Taxa de Subregistro (%)',
-                        tickformat: '.1f'
-                    },
-                    margin: {
-                        l: 50,
-                        r: 20,
-                        t: 50,
-                        b: 100
-                    },
-                    autosize: true,
-                    height: 400
-                };
-                
-                // Opções de configuração
-                const config = {
+        // Gráficos
+        window.addEventListener('load', () => {
+            // Gráfico de fluxo processual
+            const fluxoProcessualCtx = document.getElementById('fluxoProcessual').getContext('2d');
+            const fluxoProcessualChart = new Chart(fluxoProcessualCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Autuados', 'Decisões Monocráticas', 'Para Colegiado', 'Baixados', 'Sobrestados', 'Retomados'],
+                    datasets: [{
+                        label: 'Quantidade nos últimos 12 meses',
+                        data: [2006, 1781, 2, 2674, 683, 693],
+                        backgroundColor: [
+                            'rgba(51, 102, 153, 0.7)',
+                            'rgba(51, 102, 153, 0.7)',
+                            'rgba(51, 102, 153, 0.7)',
+                            'rgba(40, 167, 69, 0.7)',
+                            'rgba(220, 53, 69, 0.7)',
+                            'rgba(40, 167, 69, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(51, 102, 153, 1)',
+                            'rgba(51, 102, 153, 1)',
+                            'rgba(51, 102, 153, 1)',
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(220, 53, 69, 1)',
+                            'rgba(40, 167, 69, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
                     responsive: true,
-                    displayModeBar: false
-                };
-                
-                // Criar gráfico
-                Plotly.newPlot(chartContainer, data, layout, config);
-                
-                // Ocultar loader após o carregamento
-                if (loadingContainer) loadingContainer.style.display = 'none';
-                
-            } catch (erro) {
-                console.error('Erro ao atualizar gráfico de taxa por região:', erro);
-                
-                // Ocultar loader em caso de erro
-                const loadingContainer = document.querySelector('#chartTaxaRegiao .loading-container');
-                if (loadingContainer) loadingContainer.style.display = 'none';
-            }
-        }
-
-        // Função para atualizar o gráfico de taxa por município
-        function atualizarGraficoTaxaMunicipio() {
-            try {
-                const chartContainer = document.getElementById('chartTaxaMunicipio');
-                const loadingContainer = chartContainer.querySelector('.loading-container');
-                
-                // Mostrar loader
-                if (loadingContainer) loadingContainer.style.display = 'flex';
-                
-                // Filtrar dados para o ano selecionado
-                const dadosFiltrados = dadosMunicipios.filter(m => m.Ano == anoSelecionado);
-                
-                // Ordenar por taxa de subregistro (decrescente)
-                const dadosOrdenados = [...dadosFiltrados].sort((a, b) => b.Taxa_Subregistro - a.Taxa_Subregistro);
-                
-                // Limitar a exibição aos 15 primeiros municípios (para não sobrecarregar o gráfico)
-                const dadosLimitados = dadosOrdenados.slice(0, 15);
-                
-                // Preparar dados para o gráfico
-                const municipios = dadosLimitados.map(m => m.Município);
-                const taxas = dadosLimitados.map(m => m.Taxa_Subregistro);
-                
-                // Cores baseadas na taxa (vermelho mais intenso para valores maiores)
-                const cores = taxas.map(taxa => {
-                    const intensidade = Math.min(255, Math.round(50 + (taxa / 10) * 205));
-                    return `rgba(${intensidade}, 50, 50, 0.8)`;
-                });
-                
-                // Configurar dados do gráfico
-                const data = [{
-                    x: municipios,
-                    y: taxas,
-                    type: 'bar',
-                    marker: {
-                        color: cores
-                    },
-                    text: taxas.map(t => t.toFixed(1) + '%'),
-                    textposition: 'auto',
-                    hoverinfo: 'x+y',
-                    hovertemplate: '%{y:.1f}%<extra>%{x}</extra>'
-                }];
-                
-                // Layout do gráfico
-                const layout = {
-                    title: `Municípios com Maior Taxa de Subregistro - ${anoSelecionado}`,
-                    xaxis: {
-                        title: '',
-                        tickangle: -45
-                    },
-                    yaxis: {
-                        title: 'Taxa de Subregistro (%)',
-                        tickformat: '.1f'
-                    },
-                    margin: {
-                        l: 50,
-                        r: 20,
-                        t: 50,
-                        b: 120
-                    },
-                    autosize: true,
-                    height: 400
-                };
-                
-                // Opções de configuração
-                const config = {
-                    responsive: true,
-                    displayModeBar: false
-                };
-                
-                // Criar gráfico
-                Plotly.newPlot(chartContainer, data, layout, config);
-                
-                // Ocultar loader após o carregamento
-                if (loadingContainer) loadingContainer.style.display = 'none';
-                
-            } catch (erro) {
-                console.error('Erro ao atualizar gráfico de taxa por município:', erro);
-                
-                // Ocultar loader em caso de erro
-                const loadingContainer = document.querySelector('#chartTaxaMunicipio .loading-container');
-                if (loadingContainer) loadingContainer.style.display = 'none';
-            }
-        }
-
-        // Função para atualizar a tabela de municípios
-        function atualizarTabelaMunicipios(sortField = 'taxa', sortOrder = 'desc') {
-            try {
-                // Filtrar dados para o ano selecionado
-                const dadosFiltrados = dadosMunicipios.filter(m => m.Ano == anoSelecionado);
-                
-                // Ordenar dados conforme especificado
-                let dadosOrdenados;
-                
-                switch (sortField) {
-                    case 'municipio':
-                        dadosOrdenados = [...dadosFiltrados].sort((a, b) => {
-                            return sortOrder === 'asc' 
-                                ? a.Município.localeCompare(b.Município) 
-                                : b.Município.localeCompare(a.Município);
-                        });
-                        break;
-                    case 'nascidos':
-                        dadosOrdenados = [...dadosFiltrados].sort((a, b) => {
-                            return sortOrder === 'asc' 
-                                ? a.Nascidos_Vivos - b.Nascidos_Vivos 
-                                : b.Nascidos_Vivos - a.Nascidos_Vivos;
-                        });
-                        break;
-                    case 'taxa':
-                    default:
-                        dadosOrdenados = [...dadosFiltrados].sort((a, b) => {
-                            return sortOrder === 'asc' 
-                                ? a.Taxa_Subregistro - b.Taxa_Subregistro 
-                                : b.Taxa_Subregistro - a.Taxa_Subregistro;
-                        });
-                }
-                
-                // Obter corpo da tabela
-                const tbody = document.querySelector('#tableMunicipios tbody');
-                
-                // Limpar conteúdo existente
-                tbody.innerHTML = '';
-                
-                // Adicionar linhas para cada município
-                dadosOrdenados.forEach(municipio => {
-                    const tr = document.createElement('tr');
-                    
-                    // Definir classe de status com base na taxa
-                    let statusClass, statusText;
-                    if (municipio.Taxa_Subregistro >= 7) {
-                        statusClass = 'danger';
-                        statusText = 'Alto';
-                    } else if (municipio.Taxa_Subregistro >= 3) {
-                        statusClass = 'warning';
-                        statusText = 'Médio';
-                    } else {
-                        statusClass = 'success';
-                        statusText = 'Baixo';
-                    }
-                    
-                    // Conteúdo da linha
-                    tr.innerHTML = `
-                        <td>${municipio.Município}</td>
-                        <td>${formatarNumero(municipio.Nascidos_Vivos)}</td>
-                        <td>${formatarNumero(municipio.Registros_Civil)}</td>
-                        <td>${formatarPercentual(municipio.Taxa_Subregistro)}</td>
-                        <td><span class="badge bg-${statusClass}">${statusText}</span></td>
-                    `;
-                    
-                    tbody.appendChild(tr);
-                });
-                
-            } catch (erro) {
-                console.error('Erro ao atualizar tabela de municípios:', erro);
-                
-                // Exibir mensagem de erro na tabela
-                const tbody = document.querySelector('#tableMunicipios tbody');
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="text-center text-danger">
-                            Erro ao carregar dados. Tente novamente.
-                        </td>
-                    </tr>
-                `;
-            }
-        }
-
-        // Função para atualizar o gráfico de top 5 municípios
-        function atualizarGraficoTop5Municipios() {
-            try {
-                const chartContainer = document.getElementById('chartTop5Municipios');
-                const loadingContainer = chartContainer.querySelector('.loading-container');
-                
-                // Mostrar loader
-                if (loadingContainer) loadingContainer.style.display = 'flex';
-                
-                // Filtrar dados para o ano selecionado
-                const dadosFiltrados = dadosMunicipios.filter(m => m.Ano == anoSelecionado);
-                
-                // Ordenar por taxa de subregistro (decrescente) e pegar os 5 primeiros
-                const top5 = [...dadosFiltrados]
-                    .sort((a, b) => b.Taxa_Subregistro - a.Taxa_Subregistro)
-                    .slice(0, 5);
-                
-                // Preparar dados para o gráfico
-                const municipios = top5.map(m => m.Município);
-                const taxas = top5.map(m => m.Taxa_Subregistro);
-                
-                // Cores baseadas na taxa
-                const cores = taxas.map(taxa => {
-                    const intensidade = Math.min(255, Math.round(50 + (taxa / 10) * 205));
-                    return `rgba(${intensidade}, 50, 50, 0.8)`;
-                });
-                
-                // Configurar dados do gráfico
-                const data = [{
-                    x: municipios,
-                    y: taxas,
-                    type: 'bar',
-                    marker: {
-                        color: cores
-                    },
-                    text: taxas.map(t => t.toFixed(1) + '%'),
-                    textposition: 'auto',
-                    hoverinfo: 'x+y',
-                    hovertemplate: '%{y:.1f}%<extra>%{x}</extra>'
-                }];
-                
-                // Layout do gráfico
-                const layout = {
-                    title: `Top 5 Municípios com Maior Taxa de Subregistro - ${anoSelecionado}`,
-                    xaxis: {
-                        title: ''
-                    },
-                    yaxis: {
-                        title: 'Taxa de Subregistro (%)',
-                        tickformat: '.1f'
-                    },
-                    margin: {
-                        l: 50,
-                        r: 20,
-                        t: 50,
-                        b: 50
-                    },
-                    autosize: true,
-                    height: 400
-                };
-                
-                // Opções de configuração
-                const config = {
-                    responsive: true,
-                    displayModeBar: false
-                };
-                
-                // Criar gráfico
-                Plotly.newPlot(chartContainer, data, layout, config);
-                
-                // Ocultar loader após o carregamento
-                if (loadingContainer) loadingContainer.style.display = 'none';
-                
-            } catch (erro) {
-                console.error('Erro ao atualizar gráfico de top 5 municípios:', erro);
-                
-                // Ocultar loader em caso de erro
-                const loadingContainer = document.querySelector('#chartTop5Municipios .loading-container');
-                if (loadingContainer) loadingContainer.style.display = 'none';
-            }
-        }
-
-        // Função para atualizar o gráfico de evolução do município
-        function atualizarGraficoEvolucaoMunicipio() {
-            try {
-                if (municipioSelecionado === 'todos') return;
-                
-                const chartContainer = document.getElementById('chartEvolucaoMunicipio');
-                const loadingContainer = chartContainer.querySelector('.loading-container');
-                
-                // Mostrar loader
-                if (loadingContainer) loadingContainer.style.display = 'flex';
-                
-                // Filtrar dados para o município selecionado
-                const dadosMunicipio = dadosMunicipios.filter(m => m.Município === municipioSelecionado);
-                
-                // Ordenar por ano (crescente)
-                const dadosOrdenados = [...dadosMunicipio].sort((a, b) => a.Ano - b.Ano);
-                
-                // Preparar dados para o gráfico
-                const anos = dadosOrdenados.map(m => m.Ano);
-                const taxas = dadosOrdenados.map(m => m.Taxa_Subregistro);
-                
-                // Configurar dados do gráfico
-                const data = [{
-                    x: anos,
-                    y: taxas,
-                    type: 'scatter',
-                    mode: 'lines+markers',
-                    line: {
-                        color: 'rgb(26, 35, 126)',
-                        width: 3
-                    },
-                    marker: {
-                        color: 'rgb(26, 35, 126)',
-                        size: 8
-                    },
-                    text: taxas.map(t => t.toFixed(1) + '%'),
-                    textposition: 'top center',
-                    hoverinfo: 'x+y',
-                    hovertemplate: '%{y:.1f}%<extra>%{x}</extra>'
-                }];
-                
-                // Layout do gráfico
-                const layout = {
-                    title: `Evolução da Taxa de Subregistro em ${municipioSelecionado}`,
-                    xaxis: {
-                        title: 'Ano',
-                        tickmode: 'array',
-                        tickvals: anos,
-                        ticktext: anos.map(a => a.toString())
-                    },
-                    yaxis: {
-                        title: 'Taxa de Subregistro (%)',
-                        tickformat: '.1f'
-                    },
-                    margin: {
-                        l: 50,
-                        r: 20,
-                        t: 50,
-                        b: 50
-                    },
-                    autosize: true,
-                    height: 400
-                };
-                
-                // Opções de configuração
-                const config = {
-                    responsive: true,
-                    displayModeBar: false
-                };
-                
-                // Criar gráfico
-                Plotly.newPlot(chartContainer, data, layout, config);
-                
-                // Ocultar loader após o carregamento
-                if (loadingContainer) loadingContainer.style.display = 'none';
-                
-            } catch (erro) {
-                console.error('Erro ao atualizar gráfico de evolução do município:', erro);
-                
-                // Ocultar loader em caso de erro
-                const loadingContainer = document.querySelector('#chartEvolucaoMunicipio .loading-container');
-                if (loadingContainer) loadingContainer.style.display = 'none';
-            }
-        }
-
-        // Função para atualizar o gráfico de comparação com média estadual
-        function atualizarGraficoComparativoEstadual() {
-            try {
-                if (municipioSelecionado === 'todos') return;
-                
-                const chartContainer = document.getElementById('chartComparativoEstadual');
-                const loadingContainer = chartContainer.querySelector('.loading-container');
-                
-                // Mostrar loader
-                if (loadingContainer) loadingContainer.style.display = 'flex';
-                
-                // Filtrar dados para o município selecionado
-                const dadosMunicipio = dadosMunicipios.filter(m => m.Município === municipioSelecionado);
-                
-                // Filtrar dados do Maranhão
-                const dadosMaranhao = dadosRegioes.filter(r => r.Região === 'Maranhão');
-                
-                // Encontrar anos comuns para comparação válida
-                const anosMunicipio = dadosMunicipio.map(m => m.Ano);
-                const anosMaranhao = dadosMaranhao.map(r => r.Ano);
-                const anosComuns = anosMunicipio.filter(ano => anosMaranhao.includes(ano));
-                
-                // Filtrar apenas anos comuns
-                const dadosMunicipioFiltrados = dadosMunicipio.filter(m => anosComuns.includes(m.Ano));
-                const dadosMaranhaoFiltrados = dadosMaranhao.filter(r => anosComuns.includes(r.Ano));
-                
-                // Ordenar por ano (crescente)
-                const dadosMunicipioOrdenados = [...dadosMunicipioFiltrados].sort((a, b) => a.Ano - b.Ano);
-                const dadosMaranhaoOrdenados = [...dadosMaranhaoFiltrados].sort((a, b) => a.Ano - b.Ano);
-                
-                // Preparar dados para o gráfico
-                const anos = dadosMunicipioOrdenados.map(m => m.Ano);
-                const taxasMunicipio = dadosMunicipioOrdenados.map(m => m.Taxa_Subregistro);
-                const taxasMaranhao = dadosMaranhaoOrdenados.map(r => r.Taxa_Subregistro);
-                
-                // Configurar dados do gráfico
-                const data = [
-                    {
-                        x: anos,
-                        y: taxasMunicipio,
-                        type: 'scatter',
-                        mode: 'lines+markers',
-                        name: municipioSelecionado,
-                        line: {
-                            color: 'rgb(26, 35, 126)',
-                            width: 3
-                        },
-                        marker: {
-                            color: 'rgb(26, 35, 126)',
-                            size: 8
-                        },
-                        hovertemplate: '%{y:.1f}%<extra>%{x}</extra>'
-                    },
-                    {
-                        x: anos,
-                        y: taxasMaranhao,
-                        type: 'scatter',
-                        mode: 'lines+markers',
-                        name: 'Média do Maranhão',
-                        line: {
-                            color: 'rgb(211, 47, 47)',
-                            width: 3,
-                            dash: 'dash'
-                        },
-                        marker: {
-                            color: 'rgb(211, 47, 47)',
-                            size: 8
-                        },
-                        hovertemplate: '%{y:.1f}%<extra>%{x}</extra>'
-                    }
-                ];
-                
-                // Layout do gráfico
-                const layout = {
-                    title: `Comparação entre ${municipioSelecionado} e Média Estadual`,
-                    xaxis: {
-                        title: 'Ano',
-                        tickmode: 'array',
-                        tickvals: anos,
-                        ticktext: anos.map(a => a.toString())
-                    },
-                    yaxis: {
-                        title: 'Taxa de Subregistro (%)',
-                        tickformat: '.1f'
-                    },
-                    legend: {
-                        orientation: 'h',
-                        yanchor: 'bottom',
-                        y: 1.02,
-                        xanchor: 'right',
-                        x: 1
-                    },
-                    margin: {
-                        l: 50,
-                        r: 20,
-                        t: 50,
-                        b: 50
-                    },
-                    autosize: true,
-                    height: 400
-                };
-                
-                // Opções de configuração
-                const config = {
-                    responsive: true,
-                    displayModeBar: false
-                };
-                
-                // Criar gráfico
-                Plotly.newPlot(chartContainer, data, layout, config);
-                
-                // Ocultar loader após o carregamento
-                if (loadingContainer) loadingContainer.style.display = 'none';
-                
-            } catch (erro) {
-                console.error('Erro ao atualizar gráfico comparativo estadual:', erro);
-                
-                // Ocultar loader em caso de erro
-                const loadingContainer = document.querySelector('#chartComparativoEstadual .loading-container');
-                if (loadingContainer) loadingContainer.style.display = 'none';
-            }
-        }
-
-        // Função para atualizar o gráfico de evolução histórica
-        function atualizarGraficoEvolucaoHistorica() {
-            try {
-                const chartContainer = document.getElementById('chartEvolucaoHistorica');
-                const loadingContainer = chartContainer.querySelector('.loading-container');
-                
-                // Mostrar loader
-                if (loadingContainer) loadingContainer.style.display = 'flex';
-                
-                // Verificar se há regiões selecionadas
-                if (!regioesSelecionadas || regioesSelecionadas.length === 0) {
-                    // Se não houver, usar Brasil e Maranhão se disponíveis
-                    const regioes = [...new Set(dadosRegioes.map(r => r.Região))];
-                    
-                    if (regioes.includes('Brasil') && regioes.includes('Maranhão')) {
-                        regioesSelecionadas = ['Brasil', 'Maranhão'];
-                    } else if (regioes.length > 0) {
-                        // Se não houver Brasil e Maranhão, usar as duas primeiras regiões
-                        regioesSelecionadas = regioes.slice(0, 2);
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
                     }
                 }
-                
-                // Filtrar dados para as regiões selecionadas
-                const dadosFiltrados = dadosRegioes.filter(r => regioesSelecionadas.includes(r.Região));
-                
-                // Obter anos únicos
-                const anosUnicos = [...new Set(dadosFiltrados.map(r => r.Ano))].sort();
-                
-                // Criar traces para cada região
-                const traces = [];
-                const cores = {
-                    'Brasil': 'rgb(26, 35, 126)',
-                    'Maranhão': 'rgb(211, 47, 47)',
-                    'Nordeste': 'rgb(56, 142, 60)',
-                    'Norte': 'rgb(245, 124, 0)',
-                    'Sudeste': 'rgb(2, 136, 209)',
-                    'Sul': 'rgb(156, 39, 176)',
-                    'Centro-Oeste': 'rgb(120, 144, 156)'
-                };
-                
-                // Criar um trace para cada região selecionada
-                for (const regiao of regioesSelecionadas) {
-                    // Filtrar dados da região
-                    const dadosRegiao = dadosFiltrados.filter(r => r.Região === regiao);
-                    
-                    // Ordenar por ano
-                    const dadosOrdenados = [...dadosRegiao].sort((a, b) => a.Ano - b.Ano);
-                    
-                    // Preparar dados para o trace
-                    const anos = dadosOrdenados.map(r => r.Ano);
-                    const taxas = dadosOrdenados.map(r => r.Taxa_Subregistro);
-                    
-                    // Criar trace
-                    traces.push({
-                        x: anos,
-                        y: taxas,
-                        type: 'scatter',
-                        mode: 'lines+markers',
-                        name: regiao,
-                        line: {
-                            color: cores[regiao] || '#000000',
-                            width: 3
-                        },
-                        marker: {
-                            color: cores[regiao] || '#000000',
-                            size: 8
-                        },
-                        hovertemplate: '%{y:.1f}%<extra>%{x}</extra>'
-                    });
-                }
-                
-                // Layout do gráfico
-                const layout = {
-                    title: 'Evolução Histórica da Taxa de Subregistro',
-                    xaxis: {
-                        title: 'Ano',
-                        tickmode: 'array',
-                        tickvals: anosUnicos,
-                        ticktext: anosUnicos.map(a => a.toString())
-                    },
-                    yaxis: {
-                        title: 'Taxa de Subregistro (%)',
-                        tickformat: '.1f'
-                    },
-                    legend: {
-                        orientation: 'h',
-                        yanchor: 'bottom',
-                        y: 1.02,
-                        xanchor: 'right',
-                        x: 1
-                    },
-                    margin: {
-                        l: 50,
-                        r: 20,
-                        t: 50,
-                        b: 50
-                    },
-                    autosize: true,
-                    height: 400
-                };
-                
-                // Opções de configuração
-                const config = {
+            });
+
+            // Gráfico de processos por classe
+            const processosPorClasseCtx = document.getElementById('processosPorClasse').getContext('2d');
+            const processosPorClasseChart = new Chart(processosPorClasseCtx, {
+                type: 'pie',
+                data: {
+                    labels: [
+                        'Pedido de Providências', 
+                        'Pedido de Informações', 
+                        'Pedido de Certidão',
+                        'Inspeção',
+                        'Acompanhamento de Decisão',
+                        'Proc. Controle de Serventias',
+                        'Outros'
+                    ],
+                    datasets: [{
+                        label: 'Processos Distribuídos',
+                        data: [164, 540, 255, 112, 48, 50, 158],
+                        backgroundColor: [
+                            'rgba(51, 102, 153, 0.7)',
+                            'rgba(40, 167, 69, 0.7)',
+                            'rgba(255, 193, 7, 0.7)',
+                            'rgba(220, 53, 69, 0.7)',
+                            'rgba(23, 162, 184, 0.7)',
+                            'rgba(108, 117, 125, 0.7)',
+                            'rgba(52, 58, 64, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(51, 102, 153, 1)',
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(220, 53, 69, 1)',
+                            'rgba(23, 162, 184, 1)',
+                            'rgba(108, 117, 125, 1)',
+                            'rgba(52, 58, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
                     responsive: true,
-                    displayModeBar: false
-                };
-                
-                // Criar gráfico
-                Plotly.newPlot(chartContainer, traces, layout, config);
-                
-                // Ocultar loader após o carregamento
-                if (loadingContainer) loadingContainer.style.display = 'none';
-                
-            } catch (erro) {
-                console.error('Erro ao atualizar gráfico de evolução histórica:', erro);
-                
-                // Ocultar loader em caso de erro
-                const loadingContainer = document.querySelector('#chartEvolucaoHistorica .loading-container');
-                if (loadingContainer) loadingContainer.style.display = 'none';
-            }
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        });
+
+        // Dados para preencher os gráficos dinamicamente
+        const dadosServentias = {
+            total: 285,
+            cadastradasJusticaAberta: 214,
+            vagasOfertadas: 88,
+            sobIntervenção: 4
+        };
+
+        const dadosFluxoProcessual = {
+            autuados: 2006,
+            decisoesMonocraticas: 1781,
+            paraColegiado: 2,
+            baixados: 2674,
+            sobrestados: 683,
+            retomados: 693
+        };
+
+        // Função para inicializar animações
+        function initAnimations() {
+            // Progress bars animation
+            document.querySelectorAll('.progress').forEach(progress => {
+                const value = progress.getAttribute('data-value');
+                setTimeout(() => {
+                    progress.style.width = `${value}%`;
+                }, 500);
+            });
         }
 
-        // Função para exportar a tabela de municípios como CSV
-        function exportarTabelaCSV() {
-            try {
-                // Filtrar dados para o ano selecionado
-                const dadosFiltrados = dadosMunicipios.filter(m => m.Ano == anoSelecionado);
-                
-                // Ordenar por taxa de subregistro (decrescente)
-                const dadosOrdenados = [...dadosFiltrados].sort((a, b) => b.Taxa_Subregistro - a.Taxa_Subregistro);
-                
-                // Criar cabeçalho do CSV
-                let csv = 'Município,Nascidos_Vivos,Registros_Civil,Taxa_Subregistro\n';
-                
-                // Adicionar linhas para cada município
-                dadosOrdenados.forEach(municipio => {
-                    csv += `"${municipio.Município}",${municipio.Nascidos_Vivos},${municipio.Registros_Civil},${municipio.Taxa_Subregistro.toFixed(1)}\n`;
-                });
-                
-                // Criar blob e link para download
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.setAttribute('href', url);
-                link.setAttribute('download', `municipios_subregistro_${anoSelecionado}.csv`);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-            } catch (erro) {
-                console.error('Erro ao exportar tabela como CSV:', erro);
-                alert('Erro ao exportar dados. Tente novamente.');
-            }
-        }
-
-        // Função para exportar gráfico como imagem
-        function exportarGrafico(chartId) {
-            try {
-                const chartContainer = document.getElementById(chartId);
-                
-                // Usar a API do Plotly para exportar
-                Plotly.downloadImage(chartContainer, {
-                    format: 'png',
-                    filename: `grafico_${chartId}_${anoSelecionado}`,
-                    height: 600,
-                    width: 800
-                });
-                
-            } catch (erro) {
-                console.error('Erro ao exportar gráfico:', erro);
-                alert('Erro ao exportar gráfico. Tente novamente.');
-            }
-        }
-
-        // Função para exportar dados completos
-        function exportarDadosCompletos() {
-            try {
-                // Criar zip com todos os dados
-                let zip = new JSZip();
-                
-                // Adicionar dados de municípios
-                let csvMunicipios = 'Município,Ano,Nascidos_Vivos,Registros_Civil,Taxa_Subregistro\n';
-                dadosMunicipios.forEach(municipio => {
-                    csvMunicipios += `"${municipio.Município}",${municipio.Ano},${municipio.Nascidos_Vivos},${municipio.Registros_Civil},${municipio.Taxa_Subregistro.toFixed(1)}\n`;
-                });
-                zip.file("municipios.csv", csvMunicipios);
-                
-                // Adicionar dados de regiões
-                let csvRegioes = 'Região,Ano,Nascidos_Vivos,Registros_Civil,Taxa_Subregistro\n';
-                dadosRegioes.forEach(regiao => {
-                    csvRegioes += `"${regiao.Região}",${regiao.Ano},${regiao.Nascidos_Vivos},${regiao.Registros_Civil},${regiao.Taxa_Subregistro.toFixed(1)}\n`;
-                });
-                zip.file("regioes.csv", csvRegioes);
-                
-                // Adicionar metadados
-                zip.file("metadados.json", JSON.stringify(metadados, null, 2));
-                
-                // Gerar e baixar o arquivo zip
-                zip.generateAsync({type:"blob"}).then(function(content) {
-                    const url = URL.createObjectURL(content);
-                    const link = document.createElement('a');
-                    link.setAttribute('href', url);
-                    link.setAttribute('download', `dados_subregistro_completos.zip`);
-                    link.style.visibility = 'hidden';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                });
-                
-            } catch (erro) {
-                console.error('Erro ao exportar dados completos:', erro);
-                alert('Erro ao exportar dados completos. Tente novamente.');
-            }
-        }
-
-        // Carregar dados ao iniciar a página
-        document.addEventListener('DOMContentLoaded', carregarDados);
+        // Inicializar animações quando a página carregar
+        window.addEventListener('DOMContentLoaded', initAnimations);
     </script>
 </body>
 </html>
