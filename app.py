@@ -1,9 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.express as px
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import matplotlib.pyplot as plt
 import seaborn as sns
 import io
@@ -16,6 +13,10 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Configuração visual para gráficos
+plt.style.use('ggplot')
+sns.set_style("whitegrid")
 
 # Função para criar dados simulados (substitua pela leitura real dos arquivos Excel)
 @st.cache_data
@@ -133,8 +134,12 @@ def carregar_dados():
     
     return df_municipios, df_municipios_atual, df_regioes, df_regioes_atual
 
-# Carregamento dos dados
-df_municipios, df_municipios_atual, df_regioes, df_regioes_atual = carregar_dados()
+# Função para gerar gráfico e converter para imagem
+def plot_to_img(fig, dpi=100):
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png', dpi=dpi, bbox_inches='tight')
+    buf.seek(0)
+    return buf
 
 # Função para exportar dados
 def exportar_csv(df):
@@ -142,6 +147,9 @@ def exportar_csv(df):
     b64 = base64.b64encode(csv.encode()).decode()
     href = f'<a href="data:file/csv;base64,{b64}" download="dados_subregistro.csv">Download CSV</a>'
     return href
+
+# Carregamento dos dados
+df_municipios, df_municipios_atual, df_regioes, df_regioes_atual = carregar_dados()
 
 # INTERFACE DO USUÁRIO
 
@@ -222,38 +230,54 @@ with tab1:
     
     # Gráfico comparativo entre regiões
     st.subheader("Comparativo de Taxa de Subregistro por Região")
-    fig_regioes = px.bar(
-        df_reg_filtrado,
-        x='Região',
-        y='Taxa_Subregistro',
-        color='Taxa_Subregistro',
-        text_auto='.1f',
-        color_continuous_scale=px.colors.sequential.Reds,
-        height=400
-    )
-    fig_regioes.update_layout(xaxis_title="", yaxis_title="Taxa de Subregistro (%)")
-    st.plotly_chart(fig_regioes, use_container_width=True)
     
-    # Mapa dos municípios do MA (simulado com gráfico de dispersão)
+    # Usando matplotlib em vez de plotly
+    fig, ax = plt.subplots(figsize=(10, 6))
+    # Ordenar por taxa de subregistro
+    df_reg_plot = df_reg_filtrado.sort_values('Taxa_Subregistro', ascending=False)
+    
+    # Definir uma paleta de cores
+    colors = sns.color_palette("Reds", len(df_reg_plot))
+    
+    # Criar gráfico de barras
+    bars = ax.bar(df_reg_plot['Região'], df_reg_plot['Taxa_Subregistro'], color=colors)
+    
+    # Adicionar rótulos nas barras
+    for bar in bars:
+        height = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2., height + 0.1,
+                f'{height:.1f}%', ha='center', va='bottom')
+    
+    ax.set_ylabel('Taxa de Subregistro (%)')
+    ax.set_title('Taxa de Subregistro por Região')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    
+    st.pyplot(fig)
+    
+    # Mapa dos municípios do MA (simulado com gráfico de barras horizontal)
     if len(df_mun_filtrado) > 0:
         st.subheader(f"Distribuição do Subregistro nos Municípios do Maranhão - {ano_selecionado}")
         
-        fig_mapa = px.scatter(
-            df_mun_filtrado,
-            x='Município',
-            y='Taxa_Subregistro',
-            size='Nascidos_Vivos',
-            color='Taxa_Subregistro',
-            hover_name='Município',
-            color_continuous_scale=px.colors.sequential.Reds,
-            height=500
-        )
-        fig_mapa.update_layout(
-            xaxis_title="", 
-            yaxis_title="Taxa de Subregistro (%)",
-            xaxis={'categoryorder':'total descending'}
-        )
-        st.plotly_chart(fig_mapa, use_container_width=True)
+        # Ordenar por taxa de subregistro
+        df_plot = df_mun_filtrado.sort_values('Taxa_Subregistro', ascending=False)
+        
+        fig, ax = plt.subplots(figsize=(10, 8))
+        # Usar a função barh para barras horizontais
+        bars = ax.barh(df_plot['Município'], df_plot['Taxa_Subregistro'], 
+                     color=sns.color_palette("Reds_r", len(df_plot)))
+        
+        # Adicionar rótulos nas barras
+        for bar in bars:
+            width = bar.get_width()
+            ax.text(width + 0.1, bar.get_y() + bar.get_height()/2.,
+                    f'{width:.1f}%', ha='left', va='center')
+        
+        ax.set_xlabel('Taxa de Subregistro (%)')
+        ax.set_title(f'Taxa de Subregistro por Município - {ano_selecionado}')
+        plt.tight_layout()
+        
+        st.pyplot(fig)
 
 with tab2:
     # Filtro adicional para análise detalhada
@@ -290,39 +314,39 @@ with tab2:
         
         # Evolução histórica do município
         st.subheader(f"Evolução da Taxa de Subregistro em {municipio_detalhado}")
-        fig_evolucao = px.line(
-            df_mun_detalhe,
-            x='Ano',
-            y='Taxa_Subregistro',
-            markers=True,
-            height=400
-        )
-        fig_evolucao.update_layout(yaxis_title="Taxa de Subregistro (%)")
-        st.plotly_chart(fig_evolucao, use_container_width=True)
+        
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.plot(df_mun_detalhe['Ano'], df_mun_detalhe['Taxa_Subregistro'], 
+                marker='o', linestyle='-', color='darkblue', linewidth=2)
+        
+        # Adicionar rótulos
+        for x, y in zip(df_mun_detalhe['Ano'], df_mun_detalhe['Taxa_Subregistro']):
+            ax.text(x, y + 0.2, f'{y:.1f}%', ha='center')
+            
+        ax.set_ylabel('Taxa de Subregistro (%)')
+        ax.set_title(f'Evolução da Taxa de Subregistro em {municipio_detalhado}')
+        ax.grid(True, linestyle='--', alpha=0.7)
+        plt.tight_layout()
+        
+        st.pyplot(fig)
         
         # Comparação com média estadual
         st.subheader(f"Comparação com a Média Estadual")
         df_ma_historico = df_regioes[df_regioes['Região'] == 'Maranhão']
         
-        fig_comp = go.Figure()
-        fig_comp.add_trace(go.Scatter(
-            x=df_mun_detalhe['Ano'],
-            y=df_mun_detalhe['Taxa_Subregistro'],
-            mode='lines+markers',
-            name=municipio_detalhado
-        ))
-        fig_comp.add_trace(go.Scatter(
-            x=df_ma_historico['Ano'],
-            y=df_ma_historico['Taxa_Subregistro'],
-            mode='lines+markers',
-            name='Média do Maranhão',
-            line=dict(dash='dash')
-        ))
-        fig_comp.update_layout(
-            height=400,
-            yaxis_title="Taxa de Subregistro (%)"
-        )
-        st.plotly_chart(fig_comp, use_container_width=True)
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.plot(df_mun_detalhe['Ano'], df_mun_detalhe['Taxa_Subregistro'], 
+                marker='o', linestyle='-', label=municipio_detalhado, color='darkblue')
+        ax.plot(df_ma_historico['Ano'], df_ma_historico['Taxa_Subregistro'], 
+                marker='s', linestyle='--', label='Média do Maranhão', color='darkred')
+        
+        ax.set_ylabel('Taxa de Subregistro (%)')
+        ax.set_title(f'Comparação da Taxa de Subregistro: {municipio_detalhado} vs. Média Estadual')
+        ax.legend()
+        ax.grid(True, linestyle='--', alpha=0.7)
+        plt.tight_layout()
+        
+        st.pyplot(fig)
         
     else:
         # Tabela de todos os municípios
@@ -350,17 +374,22 @@ with tab2:
         st.subheader("Top 5 Municípios com Maior Taxa de Subregistro")
         top5 = df_mun_filtrado.sort_values('Taxa_Subregistro', ascending=False).head(5)
         
-        fig_top5 = px.bar(
-            top5,
-            x='Município',
-            y='Taxa_Subregistro',
-            color='Taxa_Subregistro',
-            text_auto='.1f',
-            color_continuous_scale=px.colors.sequential.Reds,
-            height=400
-        )
-        fig_top5.update_layout(yaxis_title="Taxa de Subregistro (%)")
-        st.plotly_chart(fig_top5, use_container_width=True)
+        fig, ax = plt.subplots(figsize=(10, 6))
+        bars = ax.bar(top5['Município'], top5['Taxa_Subregistro'], 
+                     color=sns.color_palette("Reds", len(top5)))
+        
+        # Adicionar rótulos nas barras
+        for bar in bars:
+            height = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width()/2., height + 0.1,
+                    f'{height:.1f}%', ha='center', va='bottom')
+        
+        ax.set_ylabel('Taxa de Subregistro (%)')
+        ax.set_title('Top 5 Municípios com Maior Taxa de Subregistro')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        
+        st.pyplot(fig)
 
 with tab3:
     # Evolução histórica da taxa de subregistro
@@ -378,16 +407,26 @@ with tab3:
     df_serie_regioes = df_regioes[df_regioes['Região'].isin(regioes_selecionadas)]
     
     # Gráfico de linha para evolução histórica
-    fig_historico = px.line(
-        df_serie_regioes,
-        x='Ano',
-        y='Taxa_Subregistro',
-        color='Região',
-        markers=True,
-        height=400
-    )
-    fig_historico.update_layout(yaxis_title="Taxa de Subregistro (%)")
-    st.plotly_chart(fig_historico, use_container_width=True)
+    if not df_serie_regioes.empty:
+        fig, ax = plt.subplots(figsize=(10, 6))
+        
+        # Criar um mapa de cores para as regiões
+        cores = {'Brasil': 'darkblue', 'Nordeste': 'darkgreen', 'Maranhão': 'darkred'}
+        
+        # Plotar cada região
+        for regiao in regioes_selecionadas:
+            df_plot = df_serie_regioes[df_serie_regioes['Região'] == regiao]
+            ax.plot(df_plot['Ano'], df_plot['Taxa_Subregistro'], 
+                    marker='o', linestyle='-', label=regiao, 
+                    color=cores.get(regiao, 'gray'))
+        
+        ax.set_ylabel('Taxa de Subregistro (%)')
+        ax.set_title('Evolução Histórica da Taxa de Subregistro')
+        ax.legend()
+        ax.grid(True, linestyle='--', alpha=0.7)
+        plt.tight_layout()
+        
+        st.pyplot(fig)
     
     # Taxa de subregistro x Unidades interligadas (simulado)
     if mostrar_unidades_interligadas:
@@ -402,43 +441,33 @@ with tab3:
         # Taxa de subregistro do Maranhão
         df_ma_historico = df_regioes[df_regioes['Região'] == 'Maranhão']
         
-        # Criando gráfico com dois eixos Y
-        fig_impacto = make_subplots(specs=[[{"secondary_y": True}]])
+        # Criar gráfico com dois eixos Y
+        fig, ax1 = plt.subplots(figsize=(10, 6))
         
-        # Adicionando taxa de subregistro
-        fig_impacto.add_trace(
-            go.Scatter(
-                x=df_ma_historico['Ano'],
-                y=df_ma_historico['Taxa_Subregistro'],
-                name="Taxa de Subregistro (%)",
-                mode="lines+markers",
-                line=dict(color='red')
-            ),
-            secondary_y=False,
-        )
+        # Eixo primário - Taxa de subregistro
+        line1 = ax1.plot(df_ma_historico['Ano'], df_ma_historico['Taxa_Subregistro'], 
+                         marker='o', linestyle='-', color='darkred', label='Taxa de Subregistro (%)')
+        ax1.set_xlabel('Ano')
+        ax1.set_ylabel('Taxa de Subregistro (%)', color='darkred')
+        ax1.tick_params(axis='y', labelcolor='darkred')
         
-        # Adicionando unidades interligadas
-        fig_impacto.add_trace(
-            go.Scatter(
-                x=unidades_historico['Ano'],
-                y=unidades_historico['Unidades_Interligadas'],
-                name="Nº de Unidades Interligadas",
-                mode="lines+markers",
-                line=dict(color='blue')
-            ),
-            secondary_y=True,
-        )
+        # Eixo secundário - Unidades interligadas
+        ax2 = ax1.twinx()
+        line2 = ax2.plot(unidades_historico['Ano'], unidades_historico['Unidades_Interligadas'], 
+                         marker='s', linestyle='-', color='darkblue', label='Nº de Unidades Interligadas')
+        ax2.set_ylabel('Nº de Unidades Interligadas', color='darkblue')
+        ax2.tick_params(axis='y', labelcolor='darkblue')
         
-        # Configurando títulos dos eixos
-        fig_impacto.update_layout(
-            title_text="Relação entre Unidades Interligadas e Taxa de Subregistro",
-            height=400
-        )
-        fig_impacto.update_xaxes(title_text="Ano")
-        fig_impacto.update_yaxes(title_text="Taxa de Subregistro (%)", secondary_y=False)
-        fig_impacto.update_yaxes(title_text="Nº de Unidades Interligadas", secondary_y=True)
+        # Adicionar legenda
+        lines = line1 + line2
+        labels = [l.get_label() for l in lines]
+        ax1.legend(lines, labels, loc='upper center')
         
-        st.plotly_chart(fig_impacto, use_container_width=True)
+        ax1.set_title('Relação entre Unidades Interligadas e Taxa de Subregistro')
+        ax1.grid(True, linestyle='--', alpha=0.7)
+        plt.tight_layout()
+        
+        st.pyplot(fig)
     
     # Informações da COGEX
     if mostrar_info_cogex:
