@@ -2340,6 +2340,48 @@
                 }
             });
             
+            // Preencher tabela nordeste
+            const tabelaNordeste = document.getElementById('table-nordeste');
+            const tbodyNordeste = tabelaNordeste.querySelector('tbody');
+            tbodyNordeste.innerHTML = '';
+            
+            dadosNordeste.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.ano}</td>
+                    <td>${item.nascidosVivos.toLocaleString('pt-BR')}</td>
+                    <td>${item.registrados.toLocaleString('pt-BR')}</td>
+                    <td>${item.naoRegistrados.toLocaleString('pt-BR')}</td>
+                    <td>${item.taxaSubregistro.toFixed(2)}%</td>
+                `;
+                tbodyNordeste.appendChild(tr);
+            });
+            
+            // Preencher select de anos
+            const selectYearNE = document.getElementById('select-year-ne');
+            selectYearNE.innerHTML = '<option value="latest">Último período disponível</option>';
+            
+            const anosNE = dadosNordeste.map(item => item.ano);
+            anosNE.forEach(ano => {
+                const option = document.createElement('option');
+                option.value = ano;
+                option.textContent = ano;
+                selectYearNE.appendChild(option);
+            });
+        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Taxa de Subregistro (%)'
+                            }
+                        }
+                    }
+                }
+            });
+            
             // Preencher select de anos
             const selectYear = document.getElementById('select-year');
             selectYear.innerHTML = '<option value="latest">Último período disponível</option>';
@@ -2677,3 +2719,10 @@
                                     const uf = context.label;
                                     const taxa = context.raw.toFixed(2) + '%';
                                     const dados = dadosPorUfNE[uf] || { nascidosVivos: 0, registrados: 0, naoRegistrados: 0 };
+                                    
+                                    return [
+                                        `Taxa: ${taxa}`,
+                                        `Nascidos Vivos: ${dados.nascidosVivos.toLocaleString('pt-BR')}`,
+                                        `Não Registrados: ${dados.naoRegistrados.toLocaleString('pt-BR')}`
+                                    ];
+                                }
